@@ -1,0 +1,10 @@
+﻿namespace CSharpWpfShazam.Models
+{ 
+    public class AppSettings
+    {                
+        // Shown in device combo box
+        public string SelectedDeviceName { get; set; } = string.Empty;
+        // Used for Shazam API
+        public string SelectedDeviceID { get; set; } = string.Empty;        
+    }
+}

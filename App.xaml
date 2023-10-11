@@ -1,0 +1,49 @@
+﻿<Application x:Class="CSharpWpfShazam.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.modernwpf.com/2019">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemeResources>
+                    <ui:ThemeResources.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Light" ui:ThemeDictionary.Key="Light">
+                            <ResourceDictionary.MergedDictionaries>
+                            </ResourceDictionary.MergedDictionaries>
+                            <SolidColorBrush x:Key="AppBackgroundBrush" Color="#FFF1F1F1" />
+                            <SolidColorBrush x:Key="AppContentBackgroundBrush" Color="{StaticResource SystemAltHighColor}" />
+                            <SolidColorBrush x:Key="ShazamThemeBrush" Color="#990078D4" />
+                        </ResourceDictionary>
+                    </ui:ThemeResources.ThemeDictionaries>
+                </ui:ThemeResources>
+
+                <ui:XamlControlsResources />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--For Lyrics TextBlock. Got hint from ..\ModernWpf\ModernWpf\Styles\ScrollViewer.xaml 
+                to disable 'auto-hide'-->
+            <Style TargetType="ScrollViewer">
+                <Setter Property="ui:ScrollViewerHelper.AutoHideScrollBars" Value="False" />
+            </Style>
+
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+            <!--Can't use {x:Type Button} here!
+                    https://stackoverflow.com/questions/13016932/how-to-create-a-style-based-on-default-style
+                    https://learn.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/ms601371(v=vs.95)?redirectedfrom=MSDN-->
+            <Style x:Key="BaseButtonStyle" TargetType="Button">
+                <Setter Property="Foreground" Value="WhiteSmoke" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Padding" Value="12,2,12,6" />
+            </Style>
+            <Style x:Key="ShazamButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+                <Setter Property="Background" Value="{StaticResource ShazamThemeBrush}" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+        </ResourceDictionary>
+
+    </Application.Resources>
+</Application>
