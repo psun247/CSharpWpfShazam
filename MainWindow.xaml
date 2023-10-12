@@ -66,7 +66,7 @@
         </Border>
 
         <!--Open in Browser and YouTube WebView2 at row 2 & col 0-->
-        <Grid Grid.Row="2" Background="LightGray">
+        <Grid Grid.Row="2" Background="#EDEDED">
             <Grid.RowDefinitions>
                 <RowDefinition Height="66" />
                 <RowDefinition Height="*" MinHeight="230" />
@@ -83,7 +83,7 @@
             </StackPanel>
             <!--UpdateSourceTrigger=PropertyChanged needed for KeyBinding to work. No 'Go' button in xaml.-->
             <TextBox Grid.Column="1" Text="{Binding CurrentVideoUri, UpdateSourceTrigger=PropertyChanged}" 
-                        Height="36" Margin="2,7,15,10">
+                        Height="36" Margin="2,10,15,10">
                 <TextBox.InputBindings>
                     <KeyBinding Command="{Binding GoVideoUrlCommand}" Key="Enter" />
                 </TextBox.InputBindings>
@@ -93,7 +93,7 @@
         </Grid>
 
         <!--Song info at row 2 & col 1-->
-        <Grid Grid.Row="2" Grid.RowSpan="2" Grid.Column="1">
+        <Grid Grid.Row="2" Grid.RowSpan="2" Grid.Column="1" Background="#EDEDED">
             <Grid.RowDefinitions>
                 <RowDefinition Height="115"/>
                 <RowDefinition Height="30"/>
