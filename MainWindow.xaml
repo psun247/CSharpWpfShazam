@@ -7,7 +7,7 @@
         mc:Ignorable="d"        
         Icon="CSharpWpfShazam.ico"
         WindowStartupLocation="CenterScreen"
-        Title="{Binding AppTitle}" Height="1060" Width="1650" MinHeight="300" MinWidth="800">
+        Title="{Binding AppTitle}" Height="1000" Width="1650" MinHeight="300" MinWidth="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
     </Window.Resources>
@@ -42,26 +42,26 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0" Content="{Binding ListenButtonText}" Command="{Binding ListenOrCancelCommand}"
                             ToolTip="Listen to a selected device" Style="{StaticResource ShazamButtonStyle}"
                             FontSize="22" Margin="15,0,0,0" />
-                <ui:ProgressRing Grid.Column="1" Visibility="{Binding IsProgressOn, Converter={StaticResource VisibleIfTrueConverter}}" 
-                                    IsActive="{Binding IsProgressOn}" Height="15" Width="15" Margin="10,0,0,20" />
-                <ComboBox Grid.Column="2" IsEnabled="{Binding IsCommandNotBusy}" Height="35"
+                <ComboBox Grid.Column="1" IsEnabled="{Binding IsCommandNotBusy}" Height="35"
                             ItemsSource="{Binding DeviceSettingList}" SelectedItem="{Binding SelectedDeviceSetting}"                            
                             ToolTip="Hint: select a device with 'speaker' or 'microphone'"  Margin="15,2,0,5" />
-                <ui:AppBarButton Grid.Column="3" Icon="Refresh" ToolTip="Reload device list" 
+                <ui:AppBarButton Grid.Column="2" Icon="Refresh" ToolTip="Reload device list" 
                                  Command="{Binding ReloadAndRebindCommand}" IsEnabled="{Binding IsCommandNotBusy}"
                                  Width="40" Height="40" FontWeight="SemiBold" Margin="5,0,0,0"/>
                 <!--StatusMessage-->
-                <StackPanel Grid.Column="4" Orientation="Horizontal">
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
                     <Border BorderBrush="Gray" BorderThickness="1,0,0,0" Margin="5,5,0,20" />
                     <TextBlock Text="{Binding StatusMessage}" ToolTip="{Binding StatusMessage}" 
                                FontSize="18" FontWeight="SemiBold" Margin="15,8,0,20" />
                 </StackPanel>
+                <ui:ProgressRing Grid.Column="4" Visibility="{Binding IsProgressOn, Converter={StaticResource VisibleIfTrueConverter}}" 
+                                    IsActive="{Binding IsProgressOn}" Height="15" Width="15" Margin="15,10,0,20" />
             </Grid>
         </Border>
 
