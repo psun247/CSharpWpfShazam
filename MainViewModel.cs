@@ -1,6 +1,8 @@
 ﻿// Copyright(c) 2023-2024 Peter Sun
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
@@ -17,6 +19,7 @@ namespace CSharpWpfShazam
     public partial class MainViewModel : ObservableObject
     {
         private const string _ListenToButtonText = "Listen to";
+        private const string _DefaultListenToMessage = "Select a microphone or speaker to 'Listen to' while a song is being played (in this app or another)";
         private const int IDENTIFY_TIMEOUT = 25000;
         private readonly Uri _YouTubeHomeUri = new Uri("https://www.youtube.com");
         private static readonly HttpClient _HttpClient = new() { Timeout = TimeSpan.FromSeconds(6) }; // 3 would be too short for Listen()
@@ -24,6 +27,11 @@ namespace CSharpWpfShazam
         private string _appConfigFilePath;
         private AppService _appService;
         private DeviceService _deviceService;
+        private MySQLService _mysqlService;
+        private VideoInfo? _lastVideoInfo;
+        private bool _isShazamTabActive;
+        private bool _isMySQLTabActive;
+        private bool _isMySQLTabInSync;
         private bool _isCommandBusy;
         private CancellationTokenSource? _cancelTokenSource;
         private bool _userCanceledListen;
@@ -33,6 +41,7 @@ namespace CSharpWpfShazam
             _appConfigFilePath = appConfigFilePath;
             _appService = new AppService(appConfigFilePath);
             _deviceService = new DeviceService(_HttpClient);
+            _mysqlService = new MySQLService();
             InitializeWebView2();
             SetCommandBusy(false);
             ListenButtonText = _ListenToButtonText;
@@ -41,6 +50,7 @@ namespace CSharpWpfShazam
 #if DEBUG
             AppTitle += " - Debug";
 #endif
+            InitializeMySQLTab();
         }
 
         public string AppTitle { get; private set; }
@@ -55,11 +65,51 @@ namespace CSharpWpfShazam
         [ObservableProperty]
         string _listenButtonText = string.Empty;
         [ObservableProperty]
+        bool _isListenButonEnabled;
+        [ObservableProperty]
         bool _isProgressOn;
         [ObservableProperty]
         DeviceSetting? _selectedDeviceSetting;
         [ObservableProperty]
+        bool _isAddMySQLEnabled;
+        [ObservableProperty]
+        bool _isDeleteMySQLEnabled;
+        [ObservableProperty]
         string _statusMessage = string.Empty;
+
+        public void OnShazamTabActivated(bool isActivated)
+        {
+            _isShazamTabActive = isActivated;
+            if (_isShazamTabActive)
+            {
+                IsListenButonEnabled = true;
+                StatusMessage = _DefaultListenToMessage;
+            }
+            UpdateMySQLAddDeleteButtonStates();
+        }
+
+        public void OnMySQLTabActivated(bool isActivated)
+        {
+            _isMySQLTabActive = isActivated;
+            if (_isMySQLTabActive)
+            {
+                IsListenButonEnabled = false;
+                StatusMessage = "To listen to a song to identify, go back to Shazam tab";
+
+                if (!_isMySQLTabInSync)
+                {
+                    LoadSongInfoListOnMySQLTab();
+                    _isMySQLTabInSync = true;
+                }
+            }
+            UpdateMySQLAddDeleteButtonStates();
+        }
+
+        private void UpdateMySQLAddDeleteButtonStates()
+        {
+            IsAddMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isShazamTabActive && _lastVideoInfo != null;
+            IsDeleteMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isMySQLTabActive && SongInfoList.Count > 0 && SelectedSongInfo != null;
+        }
 
         // ReloadAndRebindCommand
         [RelayCommand]
@@ -75,10 +125,10 @@ namespace CSharpWpfShazam
                 List<DeviceInfo> deviceInfoList = _deviceService.GetDeviceList();
                 DeviceSettingList = deviceInfoList.Select(x => new DeviceSetting { DeviceName = x.DeviceName, DeviceID = x.DeviceID }).ToList();
                 // Note: leave SelectedDeviceSetting as null to force the user to select a right device
-                SelectedDeviceSetting = DeviceSettingList.FirstOrDefault(x => x.DeviceID == _appService.AppSettings.SelectedDeviceID);                
+                SelectedDeviceSetting = DeviceSettingList.FirstOrDefault(x => x.DeviceID == _appService.AppSettings.SelectedDeviceID);
                 if (isAppStartup)
                 {
-                    StatusMessage = "Select a microphone or speaker to 'Listen to' while a song is being played (in this app or another)";
+                    StatusMessage = _DefaultListenToMessage;
                 }
                 else
                 {
@@ -148,6 +198,8 @@ namespace CSharpWpfShazam
                 VideoInfo? videoInfo = result.Item1;
                 if (videoInfo != null)
                 {
+                    DebugDumpVideoInfo(videoInfo);
+
                     // Note: Stopping video here (instead of before Listen() call) means
                     // I can listen to and identify my own video in the embedded video player!
                     // But it would stop the current and show a list of similar videos
@@ -157,8 +209,19 @@ namespace CSharpWpfShazam
 
                     if (await UpdateSongInfoSectionAsync(videoInfo))
                     {
-                        // Kind of short description for status bar
-                        StatusMessage = $"Identified as '{videoInfo}'";
+                        // Hang on this for MySQL
+                        _lastVideoInfo = videoInfo;
+                        UpdateMySQLAddDeleteButtonStates();
+
+                        if (_appService.AppSettings.IsMySQLEnabled)
+                        {
+                            // Kind of short description for status bar
+                            StatusMessage = $"Identified as '{videoInfo}'";
+                        }
+                        else
+                        {
+                            StatusMessage = $"Identified as '{videoInfo}' (hint: to add to DB, switch to MySQL mode on MySQL tab)";
+                        }
                     }
                 }
                 else
@@ -175,6 +238,65 @@ namespace CSharpWpfShazam
             ShowProgress(false);
             SetCommandBusy(false);
             ListenButtonText = _ListenToButtonText;
+        }
+
+        [RelayCommand]
+        private void AddMySQL()
+        {
+            try
+            {
+                if (_lastVideoInfo == null)
+                {                    
+                    return;
+                }
+
+                var songInfo = new SongInfo
+                {
+                    Artist = _lastVideoInfo.Artist,
+                    Description = _lastVideoInfo.Song,
+                    CoverUrl = _lastVideoInfo.CoverUrl,
+                    Lyrics = SongLyrics,
+                    SongUrl = CurrentVideoUri // Assume CurrentVideoUri is a matching song or YouTube search
+                };
+                if (_mysqlService.AddSongInfo(songInfo, out string error))
+                {
+                    _isMySQLTabInSync = false;
+                    StatusMessage = "Song info added to MySQL DB";
+                }
+                else
+                {
+                    StatusMessage = error;
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+            }
+        }
+
+        [RelayCommand]
+        private void DeleteMySQL()
+        {
+            try
+            {
+                if (SelectedSongInfo != null && !string.IsNullOrWhiteSpace(SelectedSongInfo.CoverUrl))
+                {
+                    if (_mysqlService.DeleteSongInfo(SelectedSongInfo.SongUrl))
+                    {
+                        SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfos());
+                        UpdateMySQLAddDeleteButtonStates();
+                        StatusMessage = "Song info deleted from MySQL DB";
+                    }
+                    else
+                    {
+                        StatusMessage = "Song info not found in MySQL DB";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+            }
         }
 
         [RelayCommand]
@@ -273,6 +395,14 @@ namespace CSharpWpfShazam
                     YouTubeWebView2Control.Source = uri;
                 }
             }
+        }
+
+        private void DebugDumpVideoInfo(VideoInfo videoInfo)
+        {
+            Debug.WriteLine("****VideoInfo");
+            Debug.WriteLine($"Artist: {videoInfo.Artist}");
+            Debug.WriteLine($"Song: {videoInfo.Song}");            
+            Debug.WriteLine($"CoverUrl: {videoInfo.CoverUrl}");
         }
     }
 }

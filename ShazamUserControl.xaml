@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="CSharpWpfShazam.ShazamUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <!--Open in Browser and YouTube WebView2-->
+    <Grid Background="#EDEDED">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="66" />
+            <RowDefinition Height="*" MinHeight="230" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Orientation="Horizontal">
+            <Button Content="Open in Browser" ToolTip="Open current video with default external browser"                            
+                            Command="{Binding OpenInExternalBrowserCommand}" 
+                            Style="{StaticResource ShazamButtonStyle}" Margin="15,15,0,0" />
+        </StackPanel>
+        <!--UpdateSourceTrigger=PropertyChanged needed for KeyBinding to work. No 'Go' button in xaml.-->
+        <TextBox Grid.Column="1" Text="{Binding CurrentVideoUri, UpdateSourceTrigger=PropertyChanged}" 
+                        Height="36" FontSize="16" Margin="2,10,15,10">
+            <TextBox.InputBindings>
+                <KeyBinding Command="{Binding GoVideoUrlCommand}" Key="Enter" />
+            </TextBox.InputBindings>
+        </TextBox>
+        <!--YouTube WebView2-->
+        <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Content="{Binding YouTubeWebView2Control}" IsEnabled="{Binding IsCommandNotBusy}" />
+    </Grid>
+</UserControl>

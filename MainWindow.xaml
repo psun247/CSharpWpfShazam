@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"        
         xmlns:ui="http://schemas.modernwpf.com/2019"        
+        xmlns:local="clr-namespace:CSharpWpfShazam"
         mc:Ignorable="d"        
         Icon="CSharpWpfShazam.ico"
         WindowStartupLocation="CenterScreen"
@@ -28,7 +29,7 @@
                 IsEnabled="{Binding IsCommandNotBusy}" >
             <DockPanel Background="{StaticResource ShazamThemeBrush}">
                 <ui:SimpleStackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <TextBlock Text="C# WPF Shazam - Identify songs like the popular mobile app Shazam!" FontSize="20" FontWeight="SemiBold" Background="Transparent"
+                    <TextBlock Text="C# WPF Shazam - Identify songs like the popular mobile app Shazam and save song info with lyrics in MySQL database" FontSize="20" FontWeight="SemiBold" Background="Transparent"
                                 HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0" />
                 </ui:SimpleStackPanel>
             </DockPanel>
@@ -45,9 +46,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Content="{Binding ListenButtonText}" Command="{Binding ListenOrCancelCommand}"
-                            ToolTip="Listen to a selected device" Style="{StaticResource ShazamButtonStyle}"
-                            FontSize="22" Margin="15,0,0,0" />
+                <Button Grid.Column="0" Content="{Binding ListenButtonText}" Command="{Binding ListenOrCancelCommand}" 
+                            IsEnabled="{Binding IsListenButonEnabled}" ToolTip="Listen to a selected device" 
+                            Style="{StaticResource ShazamButtonStyle}" FontSize="22" Margin="15,0,0,0" />
                 <ComboBox Grid.Column="1" IsEnabled="{Binding IsCommandNotBusy}" Height="35"
                             ItemsSource="{Binding DeviceSettingList}" SelectedItem="{Binding SelectedDeviceSetting}"                            
                             ToolTip="Hint: select a device with 'speaker' or 'microphone'"  Margin="15,2,0,5" />
@@ -65,38 +66,26 @@
             </Grid>
         </Border>
 
-        <!--Open in Browser and YouTube WebView2 at row 2 & col 0-->
-        <Grid Grid.Row="2" Background="#EDEDED">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="66" />
-                <RowDefinition Height="*" MinHeight="230" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Button Content="Open in Browser" ToolTip="Open current video with default external browser"                            
-                            Command="{Binding OpenInExternalBrowserCommand}" 
-                            Style="{StaticResource ShazamButtonStyle}" Margin="15,15,0,0" />
-            </StackPanel>
-            <!--UpdateSourceTrigger=PropertyChanged needed for KeyBinding to work. No 'Go' button in xaml.-->
-            <TextBox Grid.Column="1" Text="{Binding CurrentVideoUri, UpdateSourceTrigger=PropertyChanged}" 
-                        Height="36" Margin="2,10,15,10">
-                <TextBox.InputBindings>
-                    <KeyBinding Command="{Binding GoVideoUrlCommand}" Key="Enter" />
-                </TextBox.InputBindings>
-            </TextBox>
-            <!--YouTube WebView2-->
-            <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Content="{Binding YouTubeWebView2Control}" IsEnabled="{Binding IsCommandNotBusy}" />
-        </Grid>
+        <TabControl x:Name="TabControlName" Grid.Row="2" Background="LightGray">
+            <TabItem BorderThickness="1,1,1,0" BorderBrush="Gray">
+                <TabItem.Header>
+                    <TextBlock Text="Shazam" Margin="6,2" />
+                </TabItem.Header>
+                <local:ShazamUserControl DataContext="{Binding .}" />
+            </TabItem>
+            <TabItem BorderThickness="1,1,1,0" BorderBrush="Gray">
+                <TabItem.Header>
+                    <TextBlock Text="MySQL" Margin="6,2" />
+                </TabItem.Header>
+                <local:MySQLUserControl DataContext="{Binding .}" />
+            </TabItem>
+        </TabControl>
 
         <!--Song info at row 2 & col 1-->
         <Grid Grid.Row="2" Grid.RowSpan="2" Grid.Column="1" Background="#EDEDED">
             <Grid.RowDefinitions>
                 <RowDefinition Height="115"/>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="40"/>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -108,10 +97,19 @@
                     MaxHeight="100" VerticalAlignment="Top" Margin="10,7,0,0" />
             <TextBlock Grid.Column="1" Text="{Binding SongInfoText}" TextWrapping="Wrap" Foreground="Navy" 
                         FontSize="18" FontWeight="SemiBold" Padding="0,5,0,2" Margin="10,0" />
-            <DockPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="3,0">
-                <Label Content="Lyrics" Foreground="Navy" FontSize="20" FontWeight="SemiBold" Margin="10,0" />
-                <ui:AppBarButton Icon="Copy" HorizontalAlignment="Left" ToolTip="Copy song info" Width="30"
-                                 Command="{Binding CopySongInfoCommand}" Margin="5,-5,0,0" />
+            <DockPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="3,5,3,0">
+                <Label Content="Lyrics" Foreground="Navy" FontSize="20" FontWeight="SemiBold" Margin="10,3,0,0" />
+                <ui:AppBarButton Icon="Copy" HorizontalAlignment="Left" ToolTip="Copy song info to clipboard" Width="30"
+                                 Command="{Binding CopySongInfoCommand}" Margin="5,-2,0,0" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                    <Label Content="MySQL" Foreground="Navy" FontSize="18" FontWeight="SemiBold" Margin="0,5,5,0" />
+                    <Button Content="Add" Command="{Binding AddMySQLCommand}" IsEnabled="{Binding IsAddMySQLEnabled}"
+                                ToolTip="Add newly identified song info to MySQL DB" Style="{StaticResource ShazamButtonStyle}"
+                                Height="30" Width="70" FontSize="16" Margin="5,3,10,0" />
+                    <Button Content="Delete" Command="{Binding DeleteMySQLCommand}" IsEnabled="{Binding IsDeleteMySQLEnabled}"
+                                ToolTip="Delete selected song info from MySQL DB" Style="{StaticResource ShazamButtonStyle}"
+                                Height="30" Width="70" FontSize="16" Margin="5,3,10,0" />
+                </StackPanel>
             </DockPanel>
             <Border Grid.Row="2" Grid.ColumnSpan="2" BorderThickness="0,1,0,0" BorderBrush="Black" Margin="8,5,5,5">
                 <ScrollViewer>

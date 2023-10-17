@@ -23,6 +23,12 @@ namespace CSharpWpfShazam.Services
             SaveAppSettings();
         }
 
+        public void UpdateMySQLEnabled(bool isMySQLEnabled)
+        {
+            AppSettings.IsMySQLEnabled = isMySQLEnabled;
+            SaveAppSettings();
+        }
+
         private void LoadAppSettings()
         {
             AppSettings? appSettings = null;

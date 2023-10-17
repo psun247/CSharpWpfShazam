@@ -43,6 +43,37 @@
                 <Setter Property="VerticalAlignment" Value="Top" />
                 <Setter Property="BorderThickness" Value="0" />
             </Style>
+            <Style TargetType="TabItem" BasedOn="{StaticResource DefaultTabItemStyle}">
+                <Setter Property="FontSize" Value="18" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="TextElement.Foreground" Value="Black" />
+                    </Trigger>
+                    <!--#FF0078D4 "darker" than ShazamThemeBrush-->
+                    <Trigger Property="IsSelected" Value="False">
+                        <Setter Property="FontWeight" Value="Normal" />
+                        <Setter Property="TextElement.Foreground" Value="#FF0078D4" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <Style TargetType="{x:Type DataGrid}">
+                <Setter Property="HeadersVisibility" Value="None" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="CanUserAddRows" Value="False" />
+                <Setter Property="RowHeaderWidth" Value="0" />
+                <Setter Property="SelectionMode" Value="Single" />
+            </Style>
+            <Style TargetType="DataGridCell">
+                <Setter Property="Height" Value="Auto" />
+                <Style.Triggers>
+                    <Trigger Property="DataGridCell.IsSelected" Value="True">
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Foreground" Value="WhiteSmoke" />
+                        <Setter Property="Background" Value="#990078D4" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
 
     </Application.Resources>

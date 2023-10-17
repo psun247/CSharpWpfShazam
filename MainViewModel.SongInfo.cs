@@ -12,7 +12,7 @@ namespace CSharpWpfShazam
 {
     public partial class MainViewModel
     {
-        private const string _ReadyToListen = "When a song is identified, its lyrics is queried and displayed (if found) below.";
+        private const string _ReadyToListen = "Ready to 'Listen to'. When a song is identified, its lyrics is queried and displayed (if found) below.";
         private const string _SongLyricsNotFound = "Not found";
 
         // If lyricsApiKey not working, get a new one at: https://genius.com/developers
@@ -25,7 +25,7 @@ namespace CSharpWpfShazam
         [ObservableProperty]
         string _songInfoText = _ReadyToListen;
         [ObservableProperty]
-        string _songLyrics = string.Empty;
+        string? _songLyrics;
 
         [RelayCommand]
         private void CopySongInfo()
@@ -42,7 +42,7 @@ namespace CSharpWpfShazam
                     sb.AppendLine(string.Empty);
                 }
             }
-            if (SongLyrics.IsNotBlank() && SongLyrics != _SongLyricsNotFound)
+            if (!string.IsNullOrWhiteSpace(SongLyrics) && SongLyrics != _SongLyricsNotFound)
             {
                 sb.Append(SongLyrics);
             }
