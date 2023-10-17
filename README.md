@@ -1,7 +1,7 @@
 # CSharpWpfShazam
 This is a C# WPF app that identifies songs like the popular mobile app Shazam and save song info with lyrics in MySQL database.
 
-![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/01a69a1f-450c-4da9-b278-356254369839)
+![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/319a747d-31bc-46fc-880a-85e7fe405196)
 
 # Build
 Build CSharpWpfShazam.sln with Visual Studio 2022 (my version 17.6.5).  This app is targeted for .NET 7.
