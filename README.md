@@ -4,7 +4,7 @@ This is a C# WPF app that identifies songs like the popular mobile app Shazam an
 ![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/319a747d-31bc-46fc-880a-85e7fe405196)
 
 # Build
-Build CSharpWpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Visual Studio Community 2022 (64-bit).  This app is targeted for .NET 7.
+Build CSharpWpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Visual Studio Community 2022 (64-bit).  This app is targeted for .NET 7. To compile for .NET 6, simply modify CSharpWpfShazam.csproj.
 
 # Supporting Libraries
 CommunityToolkit.Mvvm
