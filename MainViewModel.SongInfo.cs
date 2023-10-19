@@ -75,7 +75,7 @@ namespace CSharpWpfShazam
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
                 updated = false;
             }
             return updated;

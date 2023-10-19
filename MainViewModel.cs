@@ -76,6 +76,8 @@ namespace CSharpWpfShazam
         bool _isDeleteMySQLEnabled;
         [ObservableProperty]
         string _statusMessage = string.Empty;
+        [ObservableProperty]
+        bool _isErrorStatusMessage;
 
         public void OnShazamTabActivated(bool isActivated)
         {
@@ -98,7 +100,12 @@ namespace CSharpWpfShazam
 
                 if (!_isMySQLTabInSync)
                 {
-                    LoadSongInfoListOnMySQLTab();
+                    if (!LoadSongInfoListOnMySQLTab())
+                    {
+                        // Ensure demo mode
+                        DemoModeBindSongInfoList();
+                        _appService.UpdateMySQLEnabled(false);
+                    }
                     _isMySQLTabInSync = true;
                 }
             }
@@ -137,7 +144,7 @@ namespace CSharpWpfShazam
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
             }
         }
 
@@ -232,7 +239,7 @@ namespace CSharpWpfShazam
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
             }
 
             ShowProgress(false);
@@ -265,12 +272,12 @@ namespace CSharpWpfShazam
                 }
                 else
                 {
-                    StatusMessage = error;
+                    ErrorStatusMessage = error;                    
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
             }
         }
 
@@ -295,7 +302,7 @@ namespace CSharpWpfShazam
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
             }
         }
 
@@ -316,7 +323,7 @@ namespace CSharpWpfShazam
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
             }
         }
 
@@ -330,7 +337,7 @@ namespace CSharpWpfShazam
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
             }
         }
 
@@ -341,6 +348,30 @@ namespace CSharpWpfShazam
             {
                 _appService.UpdateDeviceinfo(value.DeviceName, value.DeviceID);
                 StatusMessage = $"Selected listening device '{value.DeviceName}'";
+            }
+        }
+
+        // Handel text color via DataTrigger with IsErrorStatusMessage
+        private string ErrorStatusMessage
+        {
+            set
+            {
+                IsErrorStatusMessage = true;
+                StatusMessage = value;
+
+#pragma warning disable MVVMTK0034                
+                // Set it back to false (without binding, hence _isErrorStatusMessage) for next StatusMessage
+                // (see OnStatusMessageChanging())
+                _isErrorStatusMessage = false;
+            }
+        }
+
+        partial void OnStatusMessageChanging(string value)
+        {
+            if (!IsErrorStatusMessage)
+            {
+                // 'IsErrorStatusMessage = false;' doesn't work since IsErrorStatusMessage is already false
+                OnPropertyChanged(nameof(IsErrorStatusMessage));
             }
         }
 

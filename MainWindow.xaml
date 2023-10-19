@@ -59,7 +59,17 @@
                 <StackPanel Grid.Column="3" Orientation="Horizontal">
                     <Border BorderBrush="Gray" BorderThickness="1,0,0,0" Margin="5,5,0,20" />
                     <TextBlock Text="{Binding StatusMessage}" ToolTip="{Binding StatusMessage}" 
-                               FontSize="18" FontWeight="SemiBold" Margin="15,8,0,20" />
+                               FontSize="18" FontWeight="SemiBold" Margin="15,8,0,20">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsErrorStatusMessage}" Value="True">
+                                        <Setter Property="Foreground" Value="Red"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
                 <ui:ProgressRing Grid.Column="4" Visibility="{Binding IsProgressOn, Converter={StaticResource VisibleIfTrueConverter}}" 
                                     IsActive="{Binding IsProgressOn}" Height="15" Width="15" Margin="15,10,0,20" />

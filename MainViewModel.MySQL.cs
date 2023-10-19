@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Input;
 using Microsoft.Web.WebView2.Wpf;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,7 +18,7 @@ namespace CSharpWpfShazam
         public WebView2 MySQLWebView2Control { get; private set; } = new();
         public string SwitchModeButtonText => _appService.AppSettings.IsMySQLEnabled ? "Switch to Demo Mode" : "Switch to MySQL Mode";
         public string SwitchModeDescriptionText => _appService.AppSettings.IsMySQLEnabled ?
-                            "Current mode is MySQL, which displays a dynamic song info list for addition and deletion" :
+                            "Current mode is MySQL, which displays a dynamic song info list from MySQL DB for addition and deletion" :
                                 "Current mode is Demo, which displays a predefined read-only song info list";
 
         private void InitializeMySQLTab()
@@ -30,11 +31,18 @@ namespace CSharpWpfShazam
             OnPropertyChanged(nameof(MySQLWebView2Control));
         }
 
-        private void LoadSongInfoListOnMySQLTab()
+        private bool LoadSongInfoListOnMySQLTab()
+        {
+            return LoadSongInfoListOnMySQLTab(_appService.AppSettings.IsMySQLEnabled);
+        }
+
+        private bool LoadSongInfoListOnMySQLTab(bool isMySQLEnabled)
         {
             try
             {
-                if (_appService.AppSettings.IsMySQLEnabled)
+                Mouse.OverrideCursor = Cursors.Wait;
+
+                if (isMySQLEnabled)
                 {
                     SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfos());
                 }
@@ -43,11 +51,23 @@ namespace CSharpWpfShazam
                     // Could use a check-box to drive this when no MySQL support / or just for UI development!
                     DemoModeBindSongInfoList();
                 }
+
+                return true;
+            }
+            catch (MySqlConnector.MySqlException ex)
+            {                
+                // e.g.  Access denied for user 'root'@'localhost' (using password: YES)                
+                ErrorStatusMessage = ex.Message;
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
             }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
+            return false;
         }
 
         partial void OnSelectedSongInfoChanged(SongInfo? value)
@@ -81,8 +101,6 @@ namespace CSharpWpfShazam
                     {
                         return;
                     }
-
-                    DemoModeBindSongInfoList();
                 }
                 else
                 {
@@ -92,18 +110,19 @@ namespace CSharpWpfShazam
                     {
                         return;
                     }
-
-                    SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfos());
                 }
 
-                _appService.UpdateMySQLEnabled(!_appService.AppSettings.IsMySQLEnabled);
-                UpdateMySQLAddDeleteButtonStates();
-                OnPropertyChanged(nameof(SwitchModeButtonText));
-                OnPropertyChanged(nameof(SwitchModeDescriptionText));
+                if (LoadSongInfoListOnMySQLTab(!_appService.AppSettings.IsMySQLEnabled))
+                {
+                    _appService.UpdateMySQLEnabled(!_appService.AppSettings.IsMySQLEnabled);
+                    UpdateMySQLAddDeleteButtonStates();
+                    OnPropertyChanged(nameof(SwitchModeButtonText));
+                    OnPropertyChanged(nameof(SwitchModeDescriptionText));
+                }
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
+                ErrorStatusMessage = ex.Message;
             }
         }
 
