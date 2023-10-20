@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.Web.WebView2.Wpf;
@@ -152,7 +153,7 @@ namespace CSharpWpfShazam
         {
             if (_isCommandBusy)
             {
-                StatusMessage = "A command is in progress...please wait";
+                ErrorStatusMessage = "A command is in progress...please wait";
 
                 return false;
             }
@@ -169,7 +170,7 @@ namespace CSharpWpfShazam
         {
             if (SelectedDeviceSetting == null || SelectedDeviceSetting.DeviceID.IsBlank())
             {
-                StatusMessage = "Please select a device";
+                ErrorStatusMessage = "Please select a device";
                 return;
             }
 
@@ -234,7 +235,7 @@ namespace CSharpWpfShazam
                 else
                 {
                     // See OperationCanceledException in Listen() for info
-                    StatusMessage = result.Item2.IsBlank() && _userCanceledListen ? "Canceled" : "Timed out";
+                    ErrorStatusMessage = result.Item2.IsBlank() && _userCanceledListen ? "Canceled" : "Timed out";
                 }
             }
             catch (Exception ex)
@@ -288,6 +289,12 @@ namespace CSharpWpfShazam
             {
                 if (SelectedSongInfo != null && !string.IsNullOrWhiteSpace(SelectedSongInfo.CoverUrl))
                 {
+                    if (MessageBox.Show("Are you sure you want to delete the selected song info?", "Confirmation",
+                                  MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+                    {
+                        return;
+                    }
+
                     if (_mysqlService.DeleteSongInfo(SelectedSongInfo.SongUrl))
                     {
                         SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfos());
@@ -296,7 +303,7 @@ namespace CSharpWpfShazam
                     }
                     else
                     {
-                        StatusMessage = "Song info not found in MySQL DB";
+                        ErrorStatusMessage = "Song info not found in MySQL DB";
                     }
                 }
             }
@@ -318,7 +325,7 @@ namespace CSharpWpfShazam
                 }
                 else
                 {
-                    StatusMessage = "YouTube video or search query not found";
+                    ErrorStatusMessage = "YouTube video or search query not found";
                 }
             }
             catch (Exception ex)
@@ -351,7 +358,7 @@ namespace CSharpWpfShazam
             }
         }
 
-        // Handel text color via DataTrigger with IsErrorStatusMessage
+        // Handel text red color via DataTrigger with IsErrorStatusMessage (not necessarily an error message)
         private string ErrorStatusMessage
         {
             set

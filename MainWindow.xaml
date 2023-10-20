@@ -13,7 +13,7 @@
         <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
     </Window.Resources>
 
-    <Grid Background="LightGray">
+    <Grid Background="#EDEDED">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="70" />
@@ -111,15 +111,6 @@
                 <Label Content="Lyrics" Foreground="Navy" FontSize="20" FontWeight="SemiBold" Margin="10,3,0,0" />
                 <ui:AppBarButton Icon="Copy" HorizontalAlignment="Left" ToolTip="Copy song info to clipboard" Width="30"
                                  Command="{Binding CopySongInfoCommand}" Margin="5,-2,0,0" />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
-                    <Label Content="MySQL" Foreground="Navy" FontSize="18" FontWeight="SemiBold" Margin="0,5,5,0" />
-                    <Button Content="Add" Command="{Binding AddMySQLCommand}" IsEnabled="{Binding IsAddMySQLEnabled}"
-                                ToolTip="Add newly identified song info to MySQL DB" Style="{StaticResource ShazamButtonStyle}"
-                                Height="30" Width="70" FontSize="16" Margin="5,3,10,0" />
-                    <Button Content="Delete" Command="{Binding DeleteMySQLCommand}" IsEnabled="{Binding IsDeleteMySQLEnabled}"
-                                ToolTip="Delete selected song info from MySQL DB" Style="{StaticResource ShazamButtonStyle}"
-                                Height="30" Width="70" FontSize="16" Margin="5,3,10,0" />
-                </StackPanel>
             </DockPanel>
             <Border Grid.Row="2" Grid.ColumnSpan="2" BorderThickness="0,1,0,0" BorderBrush="Black" Margin="8,5,5,5">
                 <ScrollViewer>

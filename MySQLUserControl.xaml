@@ -15,9 +15,12 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <Button Content="Delete" Command="{Binding DeleteMySQLCommand}" IsEnabled="{Binding IsDeleteMySQLEnabled}"
+                    ToolTip="Delete selected song info from MySQL DB" Style="{StaticResource ShazamButtonStyle}"
+                    Margin="10,15,0,0" />
             <Button Content="{Binding SwitchModeButtonText}" Command="{Binding SwitchModeCommand}" Style="{StaticResource ShazamButtonStyle}" 
-                    Margin="15,15,0,0" />
+                    Margin="20,15,0,0" />
             <TextBlock Text="{Binding SwitchModeDescriptionText}" Margin="10,20,0,0" />
         </StackPanel>
         <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding SongInfoList}" SelectedItem="{Binding SelectedSongInfo}"  BorderThickness="0" 

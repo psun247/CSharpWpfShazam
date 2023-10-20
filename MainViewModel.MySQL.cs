@@ -18,7 +18,7 @@ namespace CSharpWpfShazam
         public WebView2 MySQLWebView2Control { get; private set; } = new();
         public string SwitchModeButtonText => _appService.AppSettings.IsMySQLEnabled ? "Switch to Demo Mode" : "Switch to MySQL Mode";
         public string SwitchModeDescriptionText => _appService.AppSettings.IsMySQLEnabled ?
-                            "Current mode is MySQL, which displays a dynamic song info list from MySQL DB for addition and deletion" :
+                            "Current mode is MySQL, which displays a dynamic song info list from MySQL DB" :
                                 "Current mode is Demo, which displays a predefined read-only song info list";
 
         private void InitializeMySQLTab()
