@@ -55,6 +55,7 @@ namespace CSharpWpfShazam
         }
 
         public string AppTitle { get; private set; }
+        public AppSettings AppSettings => _appService.AppSettings;
         public WebView2 YouTubeWebView2Control { get; private set; } = new WebView2();
         // Video address in the textbox (whenever navigated to)
         [ObservableProperty]
@@ -87,6 +88,7 @@ namespace CSharpWpfShazam
             _isShazamTabActive = isActivated;
             if (_isShazamTabActive)
             {
+                _appService.AppSettings.SelectedTabName = AppSettings.ShazamTabName;
                 IsListenButonEnabled = true;
                 StatusMessage = _DefaultListenToMessage;
             }
@@ -98,6 +100,7 @@ namespace CSharpWpfShazam
             _isMySQLTabActive = isActivated;
             if (_isMySQLTabActive)
             {
+                _appService.AppSettings.SelectedTabName = AppSettings.MySQLTabName;
                 IsListenButonEnabled = false;
                 StatusMessage = "To listen to a song to identify, go back to Shazam tab";
 
@@ -109,6 +112,14 @@ namespace CSharpWpfShazam
                         DemoModeBindSongInfoList();
                         _appService.UpdateMySQLEnabled(false);
                     }
+
+                    // Auto-select SelectedSongInfo
+                    var songInfo = SongInfoList.FirstOrDefault(x => x.SongUrl == _appService.AppSettings.SelectedSongUrl);
+                    if (songInfo != null && songInfo != SelectedSongInfo)
+                    {
+                        SelectedSongInfo = songInfo;
+                    }
+
                     _isMySQLTabInSync = true;
                 }
             }
@@ -120,15 +131,14 @@ namespace CSharpWpfShazam
             IsAddMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isShazamTabActive && _lastVideoInfo != null;
             IsDeleteMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isMySQLTabActive && SongInfoList.Count > 0 && SelectedSongInfo != null;
         }
-
-        // ReloadAndRebindCommand
+        
         [RelayCommand]
-        private void ReloadAndRebind()
+        private void ReloadDeviceList()
         {
-            ReloadAndRebindAll(isAppStartup: false);
+            ReloadDeviceList(isAppStartup: false);
         }
 
-        public void ReloadAndRebindAll(bool isAppStartup)
+        public void ReloadDeviceList(bool isAppStartup)
         {
             try
             {
@@ -161,6 +171,9 @@ namespace CSharpWpfShazam
             }
 
             StopCurrentVideo(blankUriOnly: true);
+
+            // As of 2023-10-20, only SelectedTabName and SelectedSongUrl need to be saved on app shutdown
+            _appService.SaveAppSettings();
 
             return true;
         }

@@ -78,6 +78,7 @@ namespace CSharpWpfShazam
                 SongInfoText = _ReadyToListen;
                 SongLyrics = string.Empty;
                 MySQLWebView2Control.Source = _YouTubeHomeUri;
+                _appService.AppSettings.SelectedSongUrl = string.Empty;
             }
             else
             {
@@ -85,6 +86,7 @@ namespace CSharpWpfShazam
                 SongInfoText = value.ToString();
                 SongLyrics = value.Lyrics;
                 MySQLWebView2Control.Source = new Uri(value.SongUrl);
+                _appService.AppSettings.SelectedSongUrl = value.SongUrl;
             }
             UpdateMySQLAddDeleteButtonStates();
         }

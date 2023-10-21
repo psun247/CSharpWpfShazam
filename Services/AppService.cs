@@ -35,6 +35,17 @@ namespace CSharpWpfShazam.Services
             SaveAppSettings();
         }
 
+        public void SaveAppSettings()
+        {
+            try
+            {
+                JsonHelper.SaveAsJsonToFile(AppSettings, _appConfigFilePath);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         private void LoadAppSettings()
         {
             AppSettings? appSettings = null;
@@ -46,17 +57,6 @@ namespace CSharpWpfShazam.Services
             {
             }
             AppSettings = appSettings ?? new AppSettings();
-        }
-
-        private void SaveAppSettings()
-        {
-            try
-            {
-                JsonHelper.SaveAsJsonToFile(AppSettings, _appConfigFilePath);
-            }
-            catch (Exception)
-            {
-            }
         }
     }
 }
