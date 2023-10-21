@@ -92,8 +92,13 @@ namespace CSharpWpfShazam.Services
 
             string? lyrics = WebUtility.HtmlDecode(string.Join(string.Empty,
                                             nodes.Select(node => node.InnerHtml)).Replace("<br>", "\n"));
-            return lyrics?.Trim('\n') ?? string.Empty;
+            if (lyrics == null)
+            {
+                return string.Empty;
+            }
+
+            return lyrics.Replace("<i>", string.Empty).Replace("</i>", string.Empty).
+                        Replace("<b>", string.Empty).Replace("</b>", string.Empty).Trim('\n');
         }
     }
-
 }
