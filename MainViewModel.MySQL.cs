@@ -133,7 +133,7 @@ namespace CSharpWpfShazam
             // Song: You're the Inspiration           
             // CoverUrl: https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/5a/3f/6f/5a3f6f72-28ef-c659-6bc5-43489c9147d8/5059460176041.jpg/400x400cc.jpg
 
-            SongInfoList = new ObservableCollection<SongInfo>()
+            SongInfoList = new ObservableCollection<SongInfo>
                 {
                     new SongInfo
                     {

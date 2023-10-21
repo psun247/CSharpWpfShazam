@@ -29,6 +29,12 @@ namespace CSharpWpfShazam.Services
             SaveAppSettings();
         }
 
+        public void UpdateSongInfoSectionVisibility(bool isVisible)
+        {
+            AppSettings.IsSongInfoSectionVisible = isVisible;
+            SaveAppSettings();
+        }
+
         private void LoadAppSettings()
         {
             AppSettings? appSettings = null;

@@ -8,5 +8,7 @@
         public string SelectedDeviceID { get; set; } = string.Empty;
         // true if MySQL properly installed and configured
         public bool IsMySQLEnabled { get; set; }
+        // Song info section on the right
+        public bool IsSongInfoSectionVisible { get; set; } = true;
     }
 }

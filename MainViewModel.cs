@@ -43,7 +43,7 @@ namespace CSharpWpfShazam
             _appService = new AppService(appConfigFilePath);
             _deviceService = new DeviceService(_HttpClient);
             _mysqlService = new MySQLService();
-            InitializeWebView2();
+            InitializeMain();
             SetCommandBusy(false);
             ListenButtonText = _ListenToButtonText;
             Version ver = Environment.Version;
@@ -71,6 +71,8 @@ namespace CSharpWpfShazam
         bool _isProgressOn;
         [ObservableProperty]
         DeviceSetting? _selectedDeviceSetting;
+        [ObservableProperty]
+        private Visibility _songInfoSectionVisibility = Visibility.Visible;
         [ObservableProperty]
         bool _isAddMySQLEnabled;
         [ObservableProperty]
@@ -249,6 +251,13 @@ namespace CSharpWpfShazam
         }
 
         [RelayCommand]
+        private void ExpandOrCollapseSongInfoSection()
+        {
+            SongInfoSectionVisibility = (SongInfoSectionVisibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
+            _appService.UpdateSongInfoSectionVisibility(SongInfoSectionVisibility == Visibility.Visible);
+        }
+
+        [RelayCommand]
         private void AddMySQL()
         {
             try
@@ -396,7 +405,7 @@ namespace CSharpWpfShazam
             OnPropertyChanged(nameof(IsCommandNotBusy));
         }
 
-        private void InitializeWebView2()
+        private void InitializeMain()
         {
             YouTubeWebView2Control = new WebView2
             {
@@ -410,6 +419,8 @@ namespace CSharpWpfShazam
                 CurrentVideoUri = YouTubeWebView2Control.Source.AbsoluteUri;
             };
             OnPropertyChanged(nameof(YouTubeWebView2Control));
+
+            SongInfoSectionVisibility = _appService.AppSettings.IsSongInfoSectionVisible ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void BindWebView2Control(string youTubeWebView2Source)
