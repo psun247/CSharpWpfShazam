@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Reflection;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.Web.WebView2.Wpf;
@@ -46,8 +47,11 @@ namespace CSharpWpfShazam
             InitializeMain();
             SetCommandBusy(false);
             ListenButtonText = _ListenToButtonText;
-            Version ver = Environment.Version;
-            AppTitle = $"CSharpWpfShazam (.NET {ver.Major}.{ver.Minor}.{ver.Build} runtime) by Peter Sun";
+
+            // <Version>1.0</Version> in .csproj
+            Version appVer = Assembly.GetExecutingAssembly().GetName().Version!;
+            Version dotnetVer = Environment.Version;
+            AppTitle = $"CSharpWpfShazam v{appVer.Major}.{appVer.Minor} (.NET {dotnetVer.Major}.{dotnetVer.Minor}.{dotnetVer.Build} runtime) by Peter Sun";
 #if DEBUG
             AppTitle += " - Debug";
 #endif
