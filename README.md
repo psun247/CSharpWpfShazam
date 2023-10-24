@@ -6,6 +6,11 @@ This is a C# WPF app that identifies songs like the popular mobile app Shazam an
 # Build
 Build CSharpWpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Visual Studio Community 2022 (64-bit).  This app is targeted for .NET 7. To compile for .NET 6, simply modify CSharpWpfShazam.csproj.
 
+# Run without compiling the app
+1. Click CSharpWpfShazam_v1.0 under Releases on the right side of this page
+2. Download CSharpWpfShazam_v1.0_net7.0.zip
+3. Unzip the file and run CSharpWpfShazam.exe
+
 # Usage
 Audio devices will be automatically queried and displayed in the dropdown list.  You will need to select a proper device for 'Listen to'.  Add and Delete buttons are disabled when MySQL is not installed or turned off (i.e. Demo Mode on MySQL tab). The blue arrow on the right side of the screen will expand or collapse the song info section.
 
