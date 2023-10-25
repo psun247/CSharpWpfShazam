@@ -9,7 +9,7 @@ Build CSharpWpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Visua
 # Run
 To run the app without compiling it,
 1. Click CSharpWpfShazam_v1.0 under Releases on the right side of this page
-2. Download CSharpWpfShazam_v1.0_net7.0.zip
+2. Download CSharpWpfShazam_v1.0_net7.0-windows.zip
 3. Unzip the file and run CSharpWpfShazam.exe
 
 # Usage
