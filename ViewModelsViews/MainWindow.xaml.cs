@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using CSharpWpfShazam.Models;
 
-namespace CSharpWpfShazam
+namespace CSharpWpfShazam.ViewModelsViews
 {
     public partial class MainWindow : Window
     {

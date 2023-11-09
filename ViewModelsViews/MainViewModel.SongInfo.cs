@@ -8,7 +8,7 @@ using CSharpWpfShazam.Helpers;
 using CSharpWpfShazam.Models;
 using CSharpWpfShazam.Services;
 
-namespace CSharpWpfShazam
+namespace CSharpWpfShazam.ViewModelsViews
 {
     public partial class MainViewModel
     {

@@ -1,12 +1,12 @@
-﻿<Window x:Class="CSharpWpfShazam.MainWindow"
+﻿<Window x:Class="CSharpWpfShazam.ViewModelsViews.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"        
         xmlns:ui="http://schemas.modernwpf.com/2019"        
-        xmlns:local="clr-namespace:CSharpWpfShazam"
+        xmlns:local="clr-namespace:CSharpWpfShazam.ViewModelsViews"
         mc:Ignorable="d"        
-        Icon="CSharpWpfShazam.ico"
+        Icon="pack://application:,,,/CSharpWpfShazam.ico"
         WindowStartupLocation="CenterScreen"
         Title="{Binding AppTitle}" Height="1000" Width="1650" MinHeight="300" MinWidth="800">
     <Window.Resources>

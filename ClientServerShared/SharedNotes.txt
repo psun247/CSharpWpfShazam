@@ -1,0 +1,9 @@
+﻿
+Files in ClientServerShared folder are meant to be shared (compile time)
+between client and server (web api) projects. 
+
+Namespace is simply ClientServerShared since it's used in both client and server projects.
+
+To handle versioning, a version property could be defined in request/response 
+for various client versions and the request/response will be properly handled 
+on client/server side.

@@ -6,28 +6,28 @@ using CSharpWpfShazam.Models;
 namespace CSharpWpfShazam.Services
 {
     public class MySQLService
-    {        
+    {
         public MySQLService()
         {
         }
 
-        public List<SongInfo> GetAllSongInfos()
+        public List<SongInfo> GetAllSongInfoList()
         {
             using var context = new MySQLContext();
-            return context.SongInfos.ToList();
+            return context.SongInfo.ToList();
         }
 
         public bool AddSongInfo(SongInfo songInfo, out string error)
         {
             error = string.Empty;
             using var context = new MySQLContext();
-            if (context.SongInfos.Any(x => x.SongUrl == songInfo.SongUrl))
+            if (context.SongInfo.Any(x => x.SongUrl == songInfo.SongUrl))
             {
-                error = $"Song url '{songInfo.SongUrl}' already exists in the database.";
+                error = $"Song url '{songInfo.SongUrl}' already exists in local MySQL DB";
                 return false;
             }
 
-            context.SongInfos.Add(songInfo);
+            context.SongInfo.Add(songInfo);
             context.SaveChanges();
             return true;
         }
@@ -35,7 +35,7 @@ namespace CSharpWpfShazam.Services
         public bool DeleteSongInfo(string songUrl)
         {
             using var context = new MySQLContext();
-            var songInfo = context.SongInfos.FirstOrDefault(x => x.SongUrl == songUrl);
+            var songInfo = context.SongInfo.FirstOrDefault(x => x.SongUrl == songUrl);
             if (songInfo != null)
             {
                 context.Entry(songInfo).State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
@@ -43,6 +43,6 @@ namespace CSharpWpfShazam.Services
                 return true;
             }
             return false;
-        }       
+        }
     }
 }

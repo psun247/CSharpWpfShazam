@@ -19,7 +19,15 @@ namespace CSharpWpfShazam.Data
             optionsBuilder.UseMySql(_MySQLConnectionString, ServerVersion.AutoDetect(_MySQLConnectionString));
         }
 
-        // SongInfos table
-        public DbSet<SongInfo> SongInfos { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Note: without this, table name would be SongInfos
+            modelBuilder.Entity<SongInfo>().ToTable("SongInfo");
+        }
+
+        // SongInfo table
+        public DbSet<SongInfo> SongInfo { get; set; }
     }
 }

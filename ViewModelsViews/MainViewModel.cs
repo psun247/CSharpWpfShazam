@@ -16,7 +16,7 @@ using CSharpWpfShazam.Models;
 using CSharpWpfShazam.Services;
 using CSharpWpfShazam.Helpers;
 
-namespace CSharpWpfShazam
+namespace CSharpWpfShazam.ViewModelsViews
 {
     public partial class MainViewModel : ObservableObject
     {
@@ -323,7 +323,7 @@ namespace CSharpWpfShazam
 
                     if (_mysqlService.DeleteSongInfo(SelectedSongInfo.SongUrl))
                     {
-                        SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfos());
+                        SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfoList());
                         UpdateMySQLAddDeleteButtonStates();
                         StatusMessage = "Song info deleted from MySQL DB";
                     }

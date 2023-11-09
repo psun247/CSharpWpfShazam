@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace CSharpWpfShazam
+namespace CSharpWpfShazam.ViewModelsViews
 {
     public partial class MySQLUserControl : UserControl
     {

@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSharpWpfShazam.Models;
 
-namespace CSharpWpfShazam
+namespace CSharpWpfShazam.ViewModelsViews
 {
     public partial class MainViewModel
     {
@@ -44,7 +44,7 @@ namespace CSharpWpfShazam
 
                 if (isMySQLEnabled)
                 {
-                    SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfos());
+                    SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfoList());
                 }
                 else
                 {

@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Windows;
 using RestoreWindowPlace;
+using CSharpWpfShazam.ViewModelsViews;
 
 namespace CSharpWpfShazam
 {

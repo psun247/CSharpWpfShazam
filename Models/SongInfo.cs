@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using CSharpWpfShazam.Helpers;
 
 namespace CSharpWpfShazam.Models
 {
-    // SongInfos table in MySQL DB (see MySQLContext)
+    // SongInfo table in MySQL DB (see MySQLContext)
     // [Index] makes SongUrl unique.
     [Index(nameof(SongUrl), IsUnique = true)]
     public class SongInfo
@@ -26,6 +27,8 @@ namespace CSharpWpfShazam.Models
         // From YouTube (could be a search url, if not navigated to a video)
         [Required(ErrorMessage = "SongUrl is a YouTube url and required")]
         public string SongUrl { get; set; } = string.Empty;
+
+        public DateTime? ModifiedDateTime { get; set; }
 
         public override string ToString() => Artist.IsNotBlank() ? $"{Artist} - {Description}" : Description;
     }
