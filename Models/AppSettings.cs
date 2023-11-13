@@ -21,6 +21,6 @@
         // SongInfo.SongUrl
         public string SelectedSongUrl { get; set; } = string.Empty;
         // Auth or no-auth REST API
-        public bool IsRestApiWithAuth { get; set; }
+        public bool IsRestApiViaAuth { get; set; }
     }
 }

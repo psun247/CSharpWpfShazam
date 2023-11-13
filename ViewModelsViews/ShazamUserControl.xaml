@@ -12,17 +12,20 @@
             <RowDefinition Height="*" MinHeight="230" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="290" />
+            <ColumnDefinition Width="540" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0" Orientation="Horizontal">
-            <Button Content="Add" ToolTip="Add newly identified song info to MySQL DB"                            
+            <Button Content="Add to Azure" ToolTip="Add newly identified song info to Azure SQL DB via REST API"                            
+                    Command="{Binding AddAzureCommand}" IsEnabled="{Binding IsAddAzureEnabled}"
+                    Style="{StaticResource ShazamButtonStyle}" Margin="15,15,0,0" />
+            <Button Content="Add to MySQL" ToolTip="Add newly identified song info to local MySQL DB"                            
                     Command="{Binding AddMySQLCommand}" IsEnabled="{Binding IsAddMySQLEnabled}"
                     Style="{StaticResource ShazamButtonStyle}" Margin="15,15,0,0" />
             <Button Content="Open in Browser" ToolTip="Open current video with default external browser"                            
-                            Command="{Binding OpenInExternalBrowserCommand}" 
-                            Style="{StaticResource ShazamButtonStyle}" Margin="20,15,0,0" />
+                    Command="{Binding OpenInExternalBrowserCommand}" 
+                    Style="{StaticResource ShazamButtonStyle}" Margin="20,15,0,0" />
         </StackPanel>
         <!--UpdateSourceTrigger=PropertyChanged needed for KeyBinding to work. No 'Go' button in xaml.-->
         <TextBox Grid.Column="1" Text="{Binding CurrentVideoUri, UpdateSourceTrigger=PropertyChanged}" 

@@ -57,7 +57,7 @@ namespace CSharpWpfShazam.Services
         private string ParseLyricsFromHtml(string lyricsHtml)
         {
             var htmlDocument = new HtmlDocument();
-            htmlDocument.LoadHtml(lyricsHtml);            
+            htmlDocument.LoadHtml(lyricsHtml);
 
             var clickables = htmlDocument.DocumentNode.SelectNodes("//a[contains(@class, 'ReferentFragmentVariantdesktop')]");
             if (clickables != null)
@@ -70,28 +70,34 @@ namespace CSharpWpfShazam.Services
 
             var nodes = htmlDocument.DocumentNode.SelectNodes("//div[@data-lyrics-container]");
 
-            // Try to remove what I found, addition to the original:
-            // <div data-exclude-from-selection="true" class="InreadContainer__Container-sc-19040w5-0 cujBpY
-            //          PrimisPlayer__InreadContainer-sc-1tvdtf7-0 juOVWZ">
-            //      <div class="PrimisPlayer__Container-sc-1tvdtf7-1 csMTdh"></div>
-            // </div>
-            foreach (HtmlNode node in nodes)
+            string? lyrics = null;
+            if (nodes != null)
             {
-                // Remove all <a href=....></a>
-                // https://stackoverflow.com/questions/25688847/html-agility-pack-get-all-anchors-href-attributes-on-page
-                var subNodes = node.SelectNodes("//a[@href]");
-                if (subNodes != null)
-                    foreach (HtmlNode subNode in subNodes)
-                        subNode.Remove();
+                // Note: for music that is not a song, nodes is null
 
-                subNodes = node.SelectNodes("//div[@data-exclude-from-selection]");
-                if (subNodes != null)
-                    foreach (HtmlNode subNode in subNodes)
-                        subNode.Remove();
+                // Try to remove what I found, addition to the original:
+                // <div data-exclude-from-selection="true" class="InreadContainer__Container-sc-19040w5-0 cujBpY
+                //          PrimisPlayer__InreadContainer-sc-1tvdtf7-0 juOVWZ">
+                //      <div class="PrimisPlayer__Container-sc-1tvdtf7-1 csMTdh"></div>
+                // </div>
+                foreach (HtmlNode node in nodes)
+                {
+                    // Remove all <a href=....></a>
+                    // https://stackoverflow.com/questions/25688847/html-agility-pack-get-all-anchors-href-attributes-on-page
+                    var subNodes = node.SelectNodes("//a[@href]");
+                    if (subNodes != null)
+                        foreach (HtmlNode subNode in subNodes)
+                            subNode.Remove();
+
+                    subNodes = node.SelectNodes("//div[@data-exclude-from-selection]");
+                    if (subNodes != null)
+                        foreach (HtmlNode subNode in subNodes)
+                            subNode.Remove();
+                }
+
+                lyrics = WebUtility.HtmlDecode(string.Join(string.Empty,
+                                                nodes.Select(node => node.InnerHtml)).Replace("<br>", "\n"));
             }
-
-            string? lyrics = WebUtility.HtmlDecode(string.Join(string.Empty,
-                                            nodes.Select(node => node.InnerHtml)).Replace("<br>", "\n"));
             if (lyrics == null)
             {
                 return string.Empty;

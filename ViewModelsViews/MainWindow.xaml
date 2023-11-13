@@ -9,9 +9,6 @@
         Icon="pack://application:,,,/CSharpWpfShazam.ico"
         WindowStartupLocation="CenterScreen"
         Title="{Binding AppTitle}" Height="1000" Width="1650" MinHeight="300" MinWidth="800">
-    <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
-    </Window.Resources>
 
     <Grid Background="#EDEDED">
         <Grid.RowDefinitions>
@@ -25,7 +22,7 @@
                 IsEnabled="{Binding IsCommandNotBusy}" >
             <DockPanel Background="{StaticResource ShazamThemeBrush}">
                 <ui:SimpleStackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <TextBlock Text="C# WPF Shazam - Identify songs like the popular mobile app Shazam and save song info in MySQL database" FontSize="20" FontWeight="SemiBold" Background="Transparent"
+                    <TextBlock Text="C# WPF Shazam - Identify songs like the popular mobile app Shazam and save song info in Azure SQL DB via REST API or in MySQL" FontSize="20" FontWeight="SemiBold" Background="Transparent"
                                 HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0" />
                 </ui:SimpleStackPanel>
             </DockPanel>
@@ -39,7 +36,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="40" />
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0" Content="{Binding ListenButtonText}" Command="{Binding ListenOrCancelCommand}" 
@@ -67,8 +64,10 @@
                         </TextBlock.Style>
                     </TextBlock>
                 </StackPanel>
-                <ui:ProgressRing Grid.Column="4" Visibility="{Binding IsProgressOn, Converter={StaticResource VisibleIfTrueConverter}}" 
-                                    IsActive="{Binding IsProgressOn}" Height="15" Width="15" Margin="15,10,0,20" />
+                <!--Using BooleanToVisibilityConverter here for Visibility is unnecessary because IsActive will take care of visible/invisible.
+                    Plus, BooleanToVisibilityConverter's Collapsed-to-Visible will not always work.-->
+                <ui:ProgressRing Grid.Column="4" IsActive="{Binding IsProgressOn}" Foreground="Green" 
+                                Height="20" Width="20" Margin="10,0,0,10" />
             </Grid>
         </Border>
 
@@ -89,6 +88,12 @@
                         <TextBlock Text="Shazam" Margin="6,2" />
                     </TabItem.Header>
                     <local:ShazamUserControl DataContext="{Binding .}" />
+                </TabItem>
+                <TabItem x:Name="AzureTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                    <TabItem.Header>
+                        <TextBlock Text="Azure" Margin="6,2" />
+                    </TabItem.Header>
+                    <local:AzureUserControl DataContext="{Binding .}" />
                 </TabItem>
                 <TabItem x:Name="MySQLTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
                     <TabItem.Header>

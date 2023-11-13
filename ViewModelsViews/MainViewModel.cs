@@ -1,12 +1,11 @@
 ﻿// Copyright(c) 2023-2024 Peter Sun
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Reflection;
+using System.Windows.Input;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.Web.WebView2.Wpf;
@@ -30,13 +29,17 @@ namespace CSharpWpfShazam.ViewModelsViews
         private AppService _appService;
         private DeviceService _deviceService;
         private MySQLService _mysqlService;
+        private AzureService? _azureService;
         private VideoInfo? _lastVideoInfo;
         private bool _isShazamTabActive;
         private bool _isMySQLTabActive;
         private bool _isMySQLTabInSync;
+        private bool _isAzureTabActive;
+        private bool _isAzureTabInSync;
         private bool _isCommandBusy;
         private CancellationTokenSource? _cancelTokenSource;
         private bool _userCanceledListen;
+        private string RestApiAuthInfo => IsRestApiViaAuth ? "via authorized REST API" : "via not authorized REST API";
 
         public MainViewModel(string appConfigFilePath)
         {
@@ -47,15 +50,13 @@ namespace CSharpWpfShazam.ViewModelsViews
             InitializeMain();
             SetCommandBusy(false);
             ListenButtonText = _ListenToButtonText;
-
-            // <Version>1.0</Version> in .csproj
-            Version appVer = Assembly.GetExecutingAssembly().GetName().Version!;
-            Version dotnetVer = Environment.Version;
-            AppTitle = $"CSharpWpfShazam v{appVer.Major}.{appVer.Minor} (.NET {dotnetVer.Major}.{dotnetVer.Minor}.{dotnetVer.Build} runtime) by Peter Sun";
+            Version ver = Environment.Version;
+            AppTitle = $"CSharpWpfShazam (.NET {ver.Major}.{ver.Minor}.{ver.Build} runtime) by Peter Sun";
 #if DEBUG
             AppTitle += " - Debug";
 #endif
             InitializeMySQLTab();
+            InitializeAzureLTab();
         }
 
         public string AppTitle { get; private set; }
@@ -79,13 +80,23 @@ namespace CSharpWpfShazam.ViewModelsViews
         [ObservableProperty]
         private Visibility _songInfoSectionVisibility = Visibility.Visible;
         [ObservableProperty]
+        bool _isAddAzureEnabled;
+        [ObservableProperty]
+        bool _isDeleteAzureEnabled;
+        [ObservableProperty]
         bool _isAddMySQLEnabled;
         [ObservableProperty]
         bool _isDeleteMySQLEnabled;
         [ObservableProperty]
         string _statusMessage = string.Empty;
         [ObservableProperty]
-        bool _isErrorStatusMessage;
+        bool _isErrorStatusMessage;        
+
+        public async Task InitializeAsync()
+        {
+            ReloadDeviceList(isAppStartup: true);
+            _azureService = await AzureService.CreateAsync();
+        }
 
         public void OnShazamTabActivated(bool isActivated)
         {
@@ -96,6 +107,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                 IsListenButonEnabled = true;
                 StatusMessage = _DefaultListenToMessage;
             }
+            UpdateAzureAddDeleteButtonStates();
             UpdateMySQLAddDeleteButtonStates();
         }
 
@@ -110,18 +122,22 @@ namespace CSharpWpfShazam.ViewModelsViews
 
                 if (!_isMySQLTabInSync)
                 {
+                    // Add happened, hence requiring sync
+
                     if (!LoadSongInfoListOnMySQLTab())
                     {
                         // Ensure demo mode
-                        DemoModeBindSongInfoList();
+                        DemoModeBindSongInfoListFromMySQL();
                         _appService.UpdateMySQLEnabled(false);
+                        OnPropertyChanged(nameof(SwitchModeButtonText));
+                        OnPropertyChanged(nameof(SwitchModeDescriptionText));
                     }
 
-                    // Auto-select SelectedSongInfo
-                    var songInfo = SongInfoList.FirstOrDefault(x => x.SongUrl == _appService.AppSettings.SelectedSongUrl);
-                    if (songInfo != null && songInfo != SelectedSongInfo)
+                    // Auto-select SelectedSongInfoFromMySQL
+                    var songInfo = SongInfoListFromMySQL.FirstOrDefault(x => x.SongUrl == _appService.AppSettings.SelectedSongUrl);
+                    if (songInfo != null && songInfo != SelectedSongInfoFromMySQL)
                     {
-                        SelectedSongInfo = songInfo;
+                        SelectedSongInfoFromMySQL = songInfo;
                     }
 
                     _isMySQLTabInSync = true;
@@ -130,19 +146,55 @@ namespace CSharpWpfShazam.ViewModelsViews
             UpdateMySQLAddDeleteButtonStates();
         }
 
+        public async void OnAzureTabActivated(bool isActivated)
+        {
+            _isAzureTabActive = isActivated;
+            if (_isAzureTabActive)
+            {
+                _appService.AppSettings.SelectedTabName = AppSettings.AzureTabName;
+                IsListenButonEnabled = false;
+                IsRestApiViaAuth = _appService.AppSettings.IsRestApiViaAuth;
+                OnIsRestApiViaAuthChanged(IsRestApiViaAuth);
+                StatusMessage = "To listen to a song to identify, go back to Shazam tab";
+
+                if (!_isAzureTabInSync)
+                {
+                    await LoadSongInfoListOnAzureTabAsync();
+
+                    // Auto-select SongInfoListFromAzure
+                    var songInfo = SongInfoListFromAzure.FirstOrDefault(x => x.SongUrl == _appService.AppSettings.SelectedSongUrl);
+                    if (songInfo != null && songInfo != SelectedSongInfoFromAzure)
+                    {
+                        SelectedSongInfoFromAzure = songInfo;
+                    }
+
+                    _isAzureTabInSync = true;
+                }
+            }
+            UpdateAzureAddDeleteButtonStates();
+        }
+
+        private void UpdateAzureAddDeleteButtonStates()
+        {
+            IsAddAzureEnabled = _isShazamTabActive && _lastVideoInfo != null;
+            IsDeleteAzureEnabled = _isAzureTabActive &&
+                                    SongInfoListFromAzure.Count > 0 && SelectedSongInfoFromAzure != null;
+        }
+
         private void UpdateMySQLAddDeleteButtonStates()
         {
             IsAddMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isShazamTabActive && _lastVideoInfo != null;
-            IsDeleteMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isMySQLTabActive && SongInfoList.Count > 0 && SelectedSongInfo != null;
+            IsDeleteMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isMySQLTabActive &&
+                                    SongInfoListFromMySQL.Count > 0 && SelectedSongInfoFromMySQL != null;
         }
-        
+
         [RelayCommand]
         private void ReloadDeviceList()
         {
             ReloadDeviceList(isAppStartup: false);
         }
 
-        public void ReloadDeviceList(bool isAppStartup)
+        private void ReloadDeviceList(bool isAppStartup)
         {
             try
             {
@@ -176,7 +228,7 @@ namespace CSharpWpfShazam.ViewModelsViews
 
             StopCurrentVideo(blankUriOnly: true);
 
-            // As of 2023-10-20, only SelectedTabName and SelectedSongUrl need to be saved on app shutdown
+            // As of 2023-10-20+, only SelectedTabName, SelectedSongUrl, and IsRestApiViaAuth need to be saved on app shutdown
             _appService.SaveAppSettings();
 
             return true;
@@ -238,6 +290,8 @@ namespace CSharpWpfShazam.ViewModelsViews
                     {
                         // Hang on this for MySQL
                         _lastVideoInfo = videoInfo;
+
+                        UpdateAzureAddDeleteButtonStates();
                         UpdateMySQLAddDeleteButtonStates();
 
                         if (_appService.AppSettings.IsMySQLEnabled)
@@ -247,7 +301,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                         }
                         else
                         {
-                            StatusMessage = $"Identified as '{videoInfo}' (hint: to add to DB, switch to MySQL mode on MySQL tab)";
+                            StatusMessage = $"Identified as '{videoInfo}' (to add to DB, switch to MySQL mode on MySQL tab)";
                         }
                     }
                 }
@@ -277,13 +331,13 @@ namespace CSharpWpfShazam.ViewModelsViews
         [RelayCommand]
         private void AddMySQL()
         {
+            if (_lastVideoInfo == null)
+            {
+                return;
+            }
+
             try
             {
-                if (_lastVideoInfo == null)
-                {                    
-                    return;
-                }
-
                 var songInfo = new SongInfo
                 {
                     Artist = _lastVideoInfo.Artist,
@@ -299,7 +353,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                 }
                 else
                 {
-                    ErrorStatusMessage = error;                    
+                    ErrorStatusMessage = error;
                 }
             }
             catch (Exception ex)
@@ -308,41 +362,52 @@ namespace CSharpWpfShazam.ViewModelsViews
             }
         }
 
+        // Note: using AddAzureAsync() won't bind (maybe a bug with 'Async')
         [RelayCommand]
-        private void DeleteMySQL()
+        private async Task AddAzure()
         {
+            if (_lastVideoInfo == null)
+            {
+                return;
+            }
+
             try
             {
-                if (SelectedSongInfo != null && !string.IsNullOrWhiteSpace(SelectedSongInfo.CoverUrl))
-                {
-                    if (MessageBox.Show("Are you sure you want to delete the selected song info?", "Confirmation",
-                                  MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
-                    {
-                        return;
-                    }
+                Mouse.OverrideCursor = Cursors.Wait;
 
-                    if (_mysqlService.DeleteSongInfo(SelectedSongInfo.SongUrl))
-                    {
-                        SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfoList());
-                        UpdateMySQLAddDeleteButtonStates();
-                        StatusMessage = "Song info deleted from MySQL DB";
-                    }
-                    else
-                    {
-                        ErrorStatusMessage = "Song info not found in MySQL DB";
-                    }
+                var songInfo = new SongInfo
+                {
+                    Artist = _lastVideoInfo.Artist,
+                    Description = _lastVideoInfo.Song,
+                    CoverUrl = _lastVideoInfo.CoverUrl,
+                    Lyrics = SongLyrics,
+                    SongUrl = CurrentVideoUri
+                };
+
+                string error = await _azureService!.AddSongInfoAsync(songInfo, IsRestApiViaAuth);
+                if (error.IsBlank())
+                {
+                    _isAzureTabInSync = false;
+                    StatusMessage = $"Song info added to Azure SQL DB ({RestApiAuthInfo})";
+                }
+                else
+                {
+                    ErrorStatusMessage = error;
                 }
             }
             catch (Exception ex)
             {
                 ErrorStatusMessage = ex.Message;
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
             }
         }
 
         [RelayCommand]
         private async Task OpenInExternalBrowser()
         {
-
             try
             {
                 if (CurrentVideoUri.IsNotBlank())

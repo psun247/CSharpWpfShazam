@@ -21,21 +21,24 @@ namespace CSharpWpfShazam.ViewModelsViews
             DataContext = _mainViewModel = mainViewModel;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            _mainViewModel.ReloadDeviceList(isAppStartup: true);
+            await _mainViewModel.InitializeAsync();
 
-            if (_mainViewModel.AppSettings.SelectedTabName == AppSettings.ShazamTabName)
+            switch (_mainViewModel.AppSettings.SelectedTabName)
             {
-                // This is first-time (Loaded) and Shazam tab (the first tab) is already selected, so 'ShazamTabItem.IsSelected = true;'
-                // won't fire TabControlName_SelectionChanged, hence directly calling OnShazamTabActivated.         
-                _mainViewModel.OnShazamTabActivated(true);
-
-            }
-            else if (_mainViewModel.AppSettings.SelectedTabName == AppSettings.MySQLTabName)
-            {
-                // This will fire (we need) a MySQLTabItem selection event, so let TabControlName_SelectionChanged handle its logic.
-                MySQLTabItem.IsSelected = true;
+                case AppSettings.ShazamTabName:
+                    // This is first-time (Loaded) and Shazam tab (the first tab) is already selected, so 'ShazamTabItem.IsSelected = true;'
+                    // won't fire TabControlName_SelectionChanged, hence directly calling OnShazamTabActivated.         
+                    _mainViewModel.OnShazamTabActivated(true);
+                    break;
+                case AppSettings.MySQLTabName:
+                    // This will fire (we need) a MySQLTabItem selection event, so let TabControlName_SelectionChanged handle its logic.
+                    MySQLTabItem.IsSelected = true;
+                    break;
+                case AppSettings.AzureTabName:
+                    AzureTabItem.IsSelected = true;
+                    break;
             }
         }
 
@@ -58,6 +61,11 @@ namespace CSharpWpfShazam.ViewModelsViews
             if (tabActivated.HasValue)
             {
                 _mainViewModel.OnMySQLTabActivated(tabActivated.Value);
+            }
+            tabActivated = IsTabActivated<AzureUserControl>(e);
+            if (tabActivated.HasValue)
+            {
+                _mainViewModel.OnAzureTabActivated(tabActivated.Value);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ClientServerShared;
@@ -21,8 +22,8 @@ namespace CSharpWpfShazam.Services
         private AzureService(AzureADInfo azureADInfo)
         {
             // Make https://localhost:7025/SongRepoNoAuth
-            _webApiClientNoAuth = new WebApiClient(azureADInfo.RestApiEndpoint + "NoAuth");
-            _webApiClientAuth = new WebApiClient(azureADInfo.RestApiEndpoint, azureADInfo.AccessToken);            
+            _webApiClientNoAuth = new WebApiClient(azureADInfo.RestApiEndpoint + "noauth");
+            _webApiClientAuth = new WebApiClient(azureADInfo.RestApiEndpoint, azureADInfo.AccessToken);
         }
 
         public static async Task<AzureService> CreateAsync()
@@ -30,6 +31,11 @@ namespace CSharpWpfShazam.Services
             try
             {
                 AzureADInfo azureADInfo = await AuthConfig.GetAzureADInfoAsync();
+#if DEBUG               
+                // Overwrite RestApiEndpoint in appsettings.json in Debug build
+                azureADInfo.RestApiEndpoint = "https://localhost:7025/SongRepo";
+                Debug.WriteLine($"****Overwrite RestApiEndpoint in Debug build: {azureADInfo.RestApiEndpoint}");
+#endif
                 return new AzureService(azureADInfo);
             }
             catch (Exception ex)
@@ -38,13 +44,13 @@ namespace CSharpWpfShazam.Services
             }
             return new AzureService();
         }
-        
+
         public string? RestApiUrlNoAuth => _webApiClientNoAuth?.AzureServiceWebApiEndpoint;
         public string? RestApiUrlAuth => _webApiClientAuth?.AzureServiceWebApiEndpoint;
 
-        public async Task<List<SongInfo>> GetAllSongInfoListAsync(bool useAuth)
+        public async Task<List<SongInfo>> GetAllSongInfoListAsync(bool viaAuth)
         {
-            WebApiClient webApiClient = GetWebApiClient(useAuth)!;
+            WebApiClient webApiClient = GetWebApiClient(viaAuth)!;
             GetAllSongInfoListResponse? response = await webApiClient.GetAllSongInfoListAsync(new GetAllSongInfoListRequest());
 
             return response?.SongInfoDtoList.Select(x => new SongInfo
@@ -53,13 +59,14 @@ namespace CSharpWpfShazam.Services
                 Description = x.Description,
                 CoverUrl = x.CoverUrl,
                 Lyrics = x.Lyrics,
-                SongUrl = x.SongUrl
+                SongUrl = x.SongUrl,                
+                IsDeleted = x.IsDeleted,
             }).ToList() ?? new List<SongInfo>();
         }
 
-        public async Task<string> AddSongInfoAsync(SongInfo songInfo, bool useAuth)
+        public async Task<string> AddSongInfoAsync(SongInfo songInfo, bool viaAuth)
         {
-            WebApiClient webApiClient = GetWebApiClient(useAuth)!;
+            WebApiClient webApiClient = GetWebApiClient(viaAuth)!;
             AddSongInfoResponse? response =
                 await webApiClient.AddSongInfoAsync(new AddSongInfoRequest
                 {
@@ -76,18 +83,18 @@ namespace CSharpWpfShazam.Services
             return response?.Error ?? "Error: didn't get a response from REST API";
         }
 
-        public async Task<string> DeleteSongInfoAsync(string songUrl, bool useAuth)
+        public async Task<string> DeleteSongInfoAsync(string songUrl, bool viaAuth)
         {
-            WebApiClient webApiClient = GetWebApiClient(useAuth)!;
+            WebApiClient webApiClient = GetWebApiClient(viaAuth)!;
             DeleteSongInfoResponse? response =
                 await webApiClient.DeleteSongInfoAsync(new DeleteSongInfoRequest { SongUrl = songUrl });
 
             return response?.Error ?? "Error: didn't get a response from REST API";
         }
 
-        private WebApiClient? GetWebApiClient(bool useAuth)
+        private WebApiClient? GetWebApiClient(bool viaAuth)
         {
-            WebApiClient? webApiClient = useAuth ? _webApiClientAuth : _webApiClientNoAuth;
+            WebApiClient? webApiClient = viaAuth ? _webApiClientAuth : _webApiClientNoAuth;
             if (webApiClient == null)
             {
                 throw new Exception("Azure web client is not properly set up");

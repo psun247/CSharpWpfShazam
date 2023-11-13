@@ -10,6 +10,7 @@ using CSharpWpfShazam.Services;
 
 namespace CSharpWpfShazam.ViewModelsViews
 {
+    // MainViewModel.SongInfo.cs
     public partial class MainViewModel
     {
         private const string _ReadyToListen = "Ready to 'Listen to'. When a song is identified, its lyrics is queried and displayed (if found) below.";

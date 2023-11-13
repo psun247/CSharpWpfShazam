@@ -9,12 +9,13 @@ using CSharpWpfShazam.Models;
 
 namespace CSharpWpfShazam.ViewModelsViews
 {
+    // MainViewModel.MySQL.cs
     public partial class MainViewModel
     {
         [ObservableProperty]
-        ObservableCollection<SongInfo> _songInfoList = new ObservableCollection<SongInfo>();
+        ObservableCollection<SongInfo> _songInfoListFromMySQL = new ObservableCollection<SongInfo>();
         [ObservableProperty]
-        SongInfo? _selectedSongInfo;
+        SongInfo? _selectedSongInfoFromMySQL;
         public WebView2 MySQLWebView2Control { get; private set; } = new();
         public string SwitchModeButtonText => _appService.AppSettings.IsMySQLEnabled ? "Switch to Demo Mode" : "Switch to MySQL Mode";
         public string SwitchModeDescriptionText => _appService.AppSettings.IsMySQLEnabled ?
@@ -28,7 +29,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                 Name = "MySQLWebView2",
                 Source = _YouTubeHomeUri,
             };
-            OnPropertyChanged(nameof(MySQLWebView2Control));
+            OnPropertyChanged(nameof(MySQLWebView2Control));            
         }
 
         private bool LoadSongInfoListOnMySQLTab()
@@ -44,21 +45,21 @@ namespace CSharpWpfShazam.ViewModelsViews
 
                 if (isMySQLEnabled)
                 {
-                    SongInfoList = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfoList());
+                    SongInfoListFromMySQL = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfoList());
                 }
                 else
                 {
                     // Could use a check-box to drive this when no MySQL support / or just for UI development!
-                    DemoModeBindSongInfoList();
+                    DemoModeBindSongInfoListFromMySQL();
                 }
 
                 return true;
             }
             catch (MySqlConnector.MySqlException ex)
-            {                
+            {
                 // e.g.  Access denied for user 'root'@'localhost' (using password: YES)                
                 ErrorStatusMessage = ex.Message;
-            }
+            }            
             catch (Exception ex)
             {
                 ErrorStatusMessage = ex.Message;
@@ -70,7 +71,7 @@ namespace CSharpWpfShazam.ViewModelsViews
             return false;
         }
 
-        partial void OnSelectedSongInfoChanged(SongInfo? value)
+        partial void OnSelectedSongInfoFromMySQLChanged(SongInfo? value)
         {
             if (value == null)
             {
@@ -89,6 +90,37 @@ namespace CSharpWpfShazam.ViewModelsViews
                 _appService.AppSettings.SelectedSongUrl = value.SongUrl;
             }
             UpdateMySQLAddDeleteButtonStates();
+        }
+
+        [RelayCommand]
+        private void DeleteMySQL()
+        {
+            try
+            {
+                if (SelectedSongInfoFromMySQL != null && !string.IsNullOrWhiteSpace(SelectedSongInfoFromMySQL.CoverUrl))
+                {
+                    if (MessageBox.Show("Are you sure you want to delete the selected song info?", "Confirmation",
+                                   MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+                    {
+                        return;
+                    }
+
+                    if (_mysqlService.DeleteSongInfo(SelectedSongInfoFromMySQL.SongUrl))
+                    {
+                        SongInfoListFromMySQL = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfoList());
+                        UpdateMySQLAddDeleteButtonStates();
+                        StatusMessage = "Song info deleted from MySQL DB";
+                    }
+                    else
+                    {
+                        ErrorStatusMessage = "Song info not found in MySQL DB";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorStatusMessage = ex.Message;
+            }
         }
 
         [RelayCommand]
@@ -128,14 +160,14 @@ namespace CSharpWpfShazam.ViewModelsViews
             }
         }
 
-        private void DemoModeBindSongInfoList()
+        private void DemoModeBindSongInfoListFromMySQL()
         {
             // Collect data from DebugDumpVideoInfo() to build SongInfoList:            
             // Artist: Chicago            
             // Song: You're the Inspiration           
             // CoverUrl: https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/5a/3f/6f/5a3f6f72-28ef-c659-6bc5-43489c9147d8/5059460176041.jpg/400x400cc.jpg
 
-            SongInfoList = new ObservableCollection<SongInfo>
+            SongInfoListFromMySQL = new ObservableCollection<SongInfo>
                 {
                     new SongInfo
                     {

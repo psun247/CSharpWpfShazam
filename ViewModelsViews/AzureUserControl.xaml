@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ShazamDeskPrototype.ViewModelsViews.AzureUserControl"
+﻿<UserControl x:Class="CSharpWpfShazam.ViewModelsViews.AzureUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -22,7 +22,7 @@
             <Button Content="Refresh" Command="{Binding RefreshAzureCommand}" IsEnabled="{Binding IsCommandNotBusy}"
                     ToolTip="REfresh song info list via Web API" Style="{StaticResource ShazamButtonStyle}"
                     Margin="20,15,0,0" />
-            <CheckBox Content="{Binding RestApiAuthOptionDescription}" IsChecked="{Binding IsRestApiWithAuth}" 
+            <CheckBox Content="{Binding RestApiAuthOptionDescription}" IsChecked="{Binding IsRestApiViaAuth}" 
                       FontSize="16" Margin="20,5,0,0" />
         </StackPanel>
         <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding SongInfoListFromAzure}" SelectedItem="{Binding SelectedSongInfoFromAzure}" 

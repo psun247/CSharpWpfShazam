@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace ShazamDeskPrototype.ViewModelsViews
+namespace CSharpWpfShazam.ViewModelsViews
 {
     public partial class AzureUserControl : UserControl
     {

@@ -16,18 +16,18 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-            <Button Content="Delete" Command="{Binding DeleteMySQLCommand}" IsEnabled="{Binding IsDeleteMySQLEnabled}"
-                    ToolTip="Delete selected song info from MySQL DB" Style="{StaticResource ShazamButtonStyle}"
+            <Button Content="Delete from MySQL" Command="{Binding DeleteMySQLCommand}" IsEnabled="{Binding IsDeleteMySQLEnabled}"
+                    ToolTip="Delete selected song info from local MySQL DB" Style="{StaticResource ShazamButtonStyle}"
                     Margin="10,15,0,0" />
-            <Button Content="{Binding SwitchModeButtonText}" Command="{Binding SwitchModeCommand}" Style="{StaticResource ShazamButtonStyle}" 
-                    Margin="20,15,0,0" />
+            <Button Content="{Binding SwitchModeButtonText}" Command="{Binding SwitchModeCommand}" 
+                    Style="{StaticResource ShazamButtonStyle}" Margin="20,15,0,0" />
             <TextBlock Text="{Binding SwitchModeDescriptionText}" Margin="10,20,0,0" />
         </StackPanel>
-        <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding SongInfoList}" SelectedItem="{Binding SelectedSongInfo}"  BorderThickness="0" 
-                          IsEnabled="{Binding IsCommandNotBusy}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                          ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="10,0,10,10">
+        <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding SongInfoListFromMySQL}" SelectedItem="{Binding SelectedSongInfoFromMySQL}"  
+                    IsEnabled="{Binding IsCommandNotBusy}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto" Margin="10,0,10,10">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Video" Width="340">
+                <DataGridTemplateColumn Header="Song" Width="340">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <!--Need Grid (not StackPanel) for TextBlock to wrap-->
@@ -36,7 +36,7 @@
                                     <ColumnDefinition Width="120" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-
+                                
                                 <Ellipse Height="100" Width="100" Margin="10">
                                     <Ellipse.Fill>
                                         <ImageBrush ImageSource="{Binding CoverUrl, TargetNullValue={x:Null}}" Stretch="UniformToFill" />
