@@ -53,6 +53,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                     DemoModeBindSongInfoListFromMySQL();
                 }
 
+                StatusMessage = isMySQLEnabled ? "Switched to MySQL mode" : "Switched to Demo mode";
                 return true;
             }
             catch (MySqlConnector.MySqlException ex)

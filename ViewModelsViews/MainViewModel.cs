@@ -90,7 +90,7 @@ namespace CSharpWpfShazam.ViewModelsViews
         [ObservableProperty]
         string _statusMessage = string.Empty;
         [ObservableProperty]
-        bool _isErrorStatusMessage;        
+        bool _isErrorStatusMessage;
 
         public async Task InitializeAsync()
         {
@@ -292,17 +292,8 @@ namespace CSharpWpfShazam.ViewModelsViews
                         _lastVideoInfo = videoInfo;
 
                         UpdateAzureAddDeleteButtonStates();
-                        UpdateMySQLAddDeleteButtonStates();
-
-                        if (_appService.AppSettings.IsMySQLEnabled)
-                        {
-                            // Kind of short description for status bar
-                            StatusMessage = $"Identified as '{videoInfo}'";
-                        }
-                        else
-                        {
-                            StatusMessage = $"Identified as '{videoInfo}' (to add to DB, switch to MySQL mode on MySQL tab)";
-                        }
+                        UpdateMySQLAddDeleteButtonStates();                        
+                        StatusMessage = $"Identified as '{videoInfo}'";
                     }
                 }
                 else
@@ -532,7 +523,7 @@ namespace CSharpWpfShazam.ViewModelsViews
         {
             Debug.WriteLine("****VideoInfo");
             Debug.WriteLine($"Artist: {videoInfo.Artist}");
-            Debug.WriteLine($"Song: {videoInfo.Song}");            
+            Debug.WriteLine($"Song: {videoInfo.Song}");
             Debug.WriteLine($"CoverUrl: {videoInfo.CoverUrl}");
         }
     }

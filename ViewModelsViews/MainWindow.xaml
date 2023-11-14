@@ -22,7 +22,7 @@
                 IsEnabled="{Binding IsCommandNotBusy}" >
             <DockPanel Background="{StaticResource ShazamThemeBrush}">
                 <ui:SimpleStackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <TextBlock Text="C# WPF Shazam - Identify songs like the popular mobile app Shazam and save song info in Azure SQL DB via REST API or in MySQL" FontSize="20" FontWeight="SemiBold" Background="Transparent"
+                    <TextBlock Text="C# WPF - Identify songs like the popular mobile app Shazam and save song info in Azure SQL DB via REST API or in local MySQL DB" FontSize="20" FontWeight="SemiBold" Background="Transparent"
                                 HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,0,0,0" />
                 </ui:SimpleStackPanel>
             </DockPanel>

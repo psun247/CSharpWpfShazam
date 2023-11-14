@@ -33,8 +33,8 @@ namespace CSharpWpfShazam.Services
                 AzureADInfo azureADInfo = await AuthConfig.GetAzureADInfoAsync();
 #if DEBUG               
                 // Overwrite RestApiEndpoint in appsettings.json in Debug build
-                azureADInfo.RestApiEndpoint = "https://localhost:7025/SongRepo";
-                Debug.WriteLine($"****Overwrite RestApiEndpoint in Debug build: {azureADInfo.RestApiEndpoint}");
+                //azureADInfo.RestApiEndpoint = "https://localhost:7025/SongRepo";
+                //Debug.WriteLine($"****Overwrite RestApiEndpoint in Debug build: {azureADInfo.RestApiEndpoint}");
 #endif
                 return new AzureService(azureADInfo);
             }
