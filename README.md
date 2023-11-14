@@ -1,21 +1,26 @@
 # CSharpWpfShazam
-This is a C# WPF app that identifies songs like the popular mobile app Shazam and save song info with lyrics in MySQL database.
+This is a C# WPF app that identifies songs like the popular mobile app Shazam and save song info in Azure SQL DB via REST API or in local MySQL DB.
 
-![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/a5212399-1ea0-478f-bc79-828ef3de3bb9)
+# Shazam tab
+![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/0dc90ca9-5479-42f8-a0e8-5b050d81d942)
 
-![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/82f2e11f-8e6c-48ec-8336-5dd56dce6476)
+# Azure (REST API) tab
+![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/25304fad-4f76-4732-8ca5-ba4f35b90817)
+
+# MySQL (could be MS SQL Server) tab
+![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/1b11566c-8690-4850-9ce7-fc6b76881afc)
 
 # Build
 Build CSharpWpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Visual Studio Community 2022 (64-bit).  This app is targeted for .NET 7. To compile for .NET 6, simply modify CSharpWpfShazam.csproj.
 
 # Run
 To run the app without compiling it,
-1. Click CSharpWpfShazam_v1.0 under Releases on the right side of this page
-2. Download CSharpWpfShazam_v1.0_net6.0-windows.zip
+1. Click CSharpWpfShazam_v1.1 under Releases on the right side of this page
+2. Download CSharpWpfShazam_v1.1_net6.0-windows.zip
 3. Unzip the file and run CSharpWpfShazam.exe
 
 # Usage
-Audio devices will be automatically queried and displayed in the dropdown list.  You will need to select a proper device for 'Listen to'.  Add and Delete buttons are disabled when MySQL is not installed or turned off (i.e. Demo Mode on MySQL tab). The blue arrow on the right side of the screen will expand or collapse the song info section.
+Audio devices will be automatically queried and displayed in the dropdown list.  You will need to select a proper device for 'Listen to'.  Add and Delete buttons are for Azure SQL DB (via REST API) or local MySQL DB (MS SQL Server could easily be used instead). The blue arrow on the right side of the screen will expand or collapse the song info section.
 
 # Supporting Libraries
 CommunityToolkit.Mvvm
