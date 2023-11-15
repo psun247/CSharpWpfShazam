@@ -8,7 +8,7 @@ This is a C# WPF app that identifies songs like the popular mobile app Shazam an
 ![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/25304fad-4f76-4732-8ca5-ba4f35b90817)
 
 # MySQL (could be MS SQL Server) tab
-![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/1b11566c-8690-4850-9ce7-fc6b76881afc)
+![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/7d3f972c-107c-4e2f-8669-20faf0e2c719)
 
 # Build
 Build CSharpWpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Visual Studio Community 2022 (64-bit).  This app is targeted for .NET 7. To compile for .NET 6, simply modify CSharpWpfShazam.csproj.
