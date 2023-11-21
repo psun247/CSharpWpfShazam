@@ -22,7 +22,7 @@ To run the app without compiling it,
 # Usage
 Audio devices will be automatically queried and displayed in the dropdown list.  You will need to select a proper device for 'Listen to'.  Add and Delete buttons are for Azure SQL DB (via REST API) or local MySQL DB (MS SQL Server could easily be used instead). The blue arrow on the right side of the screen will expand or collapse the song info section.
 
-# Supporting Libraries
+# Supporting libraries
 CommunityToolkit.Mvvm
  
 https://www.nuget.org/packages/CommunityToolkit.Mvvm
