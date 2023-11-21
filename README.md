@@ -1,5 +1,5 @@
 # CSharpWpfShazam
-This is a C# WPF app that identifies songs like the popular mobile app Shazam and save song info in Azure SQL DB via REST API or in local MySQL DB.
+This is a C# WPF app that identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via REST API or in local MySQL DB.
 
 # Shazam tab
 ![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/014e1450-94ab-4ea9-99ea-b9ada5da0d1b)
@@ -15,8 +15,8 @@ Build CSharpWpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Visua
 
 # Run
 To run the app without compiling it,
-1. Click CSharpWpfShazam_v1.1 under Releases on the right side of this page
-2. Download CSharpWpfShazam_v1.1_net6.0-windows.zip
+1. Click CSharpWpfShazam_v1.2 under Releases on the right side of this page
+2. Download CSharpWpfShazam_v1.2_net6.0-windows.zip
 3. Unzip the file and run CSharpWpfShazam.exe
 
 # Usage
@@ -30,6 +30,9 @@ https://www.nuget.org/packages/CommunityToolkit.Mvvm
 Pomelo.EntityFrameworkCore.MySql
 
 https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql
+
+Microsoft Authentication Library (MSAL) for .NET (formerly named Azure AD)
+https://www.nuget.org/packages/Microsoft.Identity.Client/
  
 ModernWpfUI
  
