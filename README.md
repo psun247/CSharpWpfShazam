@@ -32,6 +32,7 @@ Pomelo.EntityFrameworkCore.MySql
 https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql
 
 Microsoft Authentication Library (MSAL) for .NET (formerly named Azure AD)
+
 https://www.nuget.org/packages/Microsoft.Identity.Client/
  
 ModernWpfUI
