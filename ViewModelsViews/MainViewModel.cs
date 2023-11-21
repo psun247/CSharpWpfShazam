@@ -1,11 +1,9 @@
-﻿// Copyright(c) 2023-2024 Peter Sun
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
 using Microsoft.Web.WebView2.Wpf;
@@ -17,6 +15,7 @@ using CSharpWpfShazam.Helpers;
 
 namespace CSharpWpfShazam.ViewModelsViews
 {
+    // MainViewModel.cs
     public partial class MainViewModel : ObservableObject
     {
         private const string _ListenToButtonText = "Listen to";
@@ -39,7 +38,7 @@ namespace CSharpWpfShazam.ViewModelsViews
         private bool _isCommandBusy;
         private CancellationTokenSource? _cancelTokenSource;
         private bool _userCanceledListen;
-        private string RestApiAuthInfo => IsRestApiViaAuth ? "via authorized REST API" : "via not authorized REST API";
+        private string RestApiAuthInfo => IsRestApiViaAuth ? "via authorized REST API" : "via no-auth REST API";
 
         public MainViewModel(string appConfigFilePath)
         {
@@ -60,33 +59,10 @@ namespace CSharpWpfShazam.ViewModelsViews
         }
 
         public string AppTitle { get; private set; }
-        public AppSettings AppSettings => _appService.AppSettings;
-        public WebView2 YouTubeWebView2Control { get; private set; } = new WebView2();
-        // Video address in the textbox (whenever navigated to)
-        [ObservableProperty]
-        string _currentVideoUri = string.Empty;
-        [ObservableProperty]
-        List<DeviceSetting> _deviceSettingList = new List<DeviceSetting>();
-        public bool IsCommandNotBusy => !_isCommandBusy;
-        // "Listen To" or "Cancel"
-        [ObservableProperty]
-        string _listenButtonText = string.Empty;
-        [ObservableProperty]
-        bool _isListenButonEnabled;
-        [ObservableProperty]
-        bool _isProgressOn;
-        [ObservableProperty]
-        DeviceSetting? _selectedDeviceSetting;
+        public AppSettings AppSettings => _appService.AppSettings;       
+        public bool IsCommandNotBusy => !_isCommandBusy;        
         [ObservableProperty]
         private Visibility _songInfoSectionVisibility = Visibility.Visible;
-        [ObservableProperty]
-        bool _isAddAzureEnabled;
-        [ObservableProperty]
-        bool _isDeleteAzureEnabled;
-        [ObservableProperty]
-        bool _isAddMySQLEnabled;
-        [ObservableProperty]
-        bool _isDeleteMySQLEnabled;
         [ObservableProperty]
         string _statusMessage = string.Empty;
         [ObservableProperty]
@@ -96,104 +72,9 @@ namespace CSharpWpfShazam.ViewModelsViews
         {
             ReloadDeviceList(isAppStartup: true);
             _azureService = await AzureService.CreateAsync();
-        }
-
-        public void OnShazamTabActivated(bool isActivated)
-        {
-            _isShazamTabActive = isActivated;
-            if (_isShazamTabActive)
-            {
-                _appService.AppSettings.SelectedTabName = AppSettings.ShazamTabName;
-                IsListenButonEnabled = true;
-                StatusMessage = _DefaultListenToMessage;
-            }
-            UpdateAzureAddDeleteButtonStates();
-            UpdateMySQLAddDeleteButtonStates();
-        }
-
-        public void OnMySQLTabActivated(bool isActivated)
-        {
-            _isMySQLTabActive = isActivated;
-            if (_isMySQLTabActive)
-            {
-                _appService.AppSettings.SelectedTabName = AppSettings.MySQLTabName;
-                IsListenButonEnabled = false;
-                StatusMessage = "To listen to a song to identify, go back to Shazam tab";
-
-                if (!_isMySQLTabInSync)
-                {
-                    // Add happened, hence requiring sync
-
-                    if (!LoadSongInfoListOnMySQLTab())
-                    {
-                        // Ensure demo mode
-                        DemoModeBindSongInfoListFromMySQL();
-                        _appService.UpdateMySQLEnabled(false);
-                        OnPropertyChanged(nameof(SwitchModeButtonText));
-                        OnPropertyChanged(nameof(SwitchModeDescriptionText));
-                    }
-
-                    // Auto-select SelectedSongInfoFromMySQL
-                    var songInfo = SongInfoListFromMySQL.FirstOrDefault(x => x.SongUrl == _appService.AppSettings.SelectedSongUrl);
-                    if (songInfo != null && songInfo != SelectedSongInfoFromMySQL)
-                    {
-                        SelectedSongInfoFromMySQL = songInfo;
-                    }
-
-                    _isMySQLTabInSync = true;
-                }
-            }
-            UpdateMySQLAddDeleteButtonStates();
-        }
-
-        public async void OnAzureTabActivated(bool isActivated)
-        {
-            _isAzureTabActive = isActivated;
-            if (_isAzureTabActive)
-            {
-                _appService.AppSettings.SelectedTabName = AppSettings.AzureTabName;
-                IsListenButonEnabled = false;
-                IsRestApiViaAuth = _appService.AppSettings.IsRestApiViaAuth;
-                OnIsRestApiViaAuthChanged(IsRestApiViaAuth);
-                StatusMessage = "To listen to a song to identify, go back to Shazam tab";
-
-                if (!_isAzureTabInSync)
-                {
-                    await LoadSongInfoListOnAzureTabAsync();
-
-                    // Auto-select SongInfoListFromAzure
-                    var songInfo = SongInfoListFromAzure.FirstOrDefault(x => x.SongUrl == _appService.AppSettings.SelectedSongUrl);
-                    if (songInfo != null && songInfo != SelectedSongInfoFromAzure)
-                    {
-                        SelectedSongInfoFromAzure = songInfo;
-                    }
-
-                    _isAzureTabInSync = true;
-                }
-            }
-            UpdateAzureAddDeleteButtonStates();
-        }
-
-        private void UpdateAzureAddDeleteButtonStates()
-        {
-            IsAddAzureEnabled = _isShazamTabActive && _lastVideoInfo != null;
-            IsDeleteAzureEnabled = _isAzureTabActive &&
-                                    SongInfoListFromAzure.Count > 0 && SelectedSongInfoFromAzure != null;
-        }
-
-        private void UpdateMySQLAddDeleteButtonStates()
-        {
-            IsAddMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isShazamTabActive && _lastVideoInfo != null;
-            IsDeleteMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isMySQLTabActive &&
-                                    SongInfoListFromMySQL.Count > 0 && SelectedSongInfoFromMySQL != null;
-        }
-
-        [RelayCommand]
-        private void ReloadDeviceList()
-        {
-            ReloadDeviceList(isAppStartup: false);
-        }
-
+        }                      
+       
+        
         private void ReloadDeviceList(bool isAppStartup)
         {
             try
@@ -232,85 +113,7 @@ namespace CSharpWpfShazam.ViewModelsViews
             _appService.SaveAppSettings();
 
             return true;
-        }
-
-        // Note: with 'async Task', Listen button will be automatically disabled when the command is being executed,
-        //          hence leaving it as 'async void'        
-        [RelayCommand]
-        private async void ListenOrCancel()
-        {
-            if (SelectedDeviceSetting == null || SelectedDeviceSetting.DeviceID.IsBlank())
-            {
-                ErrorStatusMessage = "Please select a device";
-                return;
-            }
-
-            if (_isCommandBusy)
-            {
-                // Cause to throw OperationCanceledException in Listen() on a previously created
-                // _cancelTokenSource in this method                
-                _userCanceledListen = true;
-                _cancelTokenSource?.Cancel();
-                return;
-            }
-
-            try
-            {
-                StatusMessage = $"Listening to '{SelectedDeviceSetting.DeviceName}'...please wait";
-                ListenButtonText = "Cancel";
-                _userCanceledListen = false;
-
-                _cancelTokenSource = new CancellationTokenSource();
-#pragma warning disable 4014
-                // disable without await, and it's OK because we want to _cancelTokenSource.Cancel() on timeout
-                Task.Delay(IDENTIFY_TIMEOUT).ContinueWith((_) =>
-                {
-                    // Cause to throw OperationCanceledException in Listen()
-                    _cancelTokenSource?.Cancel();
-                });
-
-                SetCommandBusy(true);
-                ShowProgress(true);
-
-                Tuple<VideoInfo?, string> result = await _deviceService.Listen(SelectedDeviceSetting, _cancelTokenSource);
-                _cancelTokenSource = null;
-                VideoInfo? videoInfo = result.Item1;
-                if (videoInfo != null)
-                {
-                    DebugDumpVideoInfo(videoInfo);
-
-                    // Note: Stopping video here (instead of before Listen() call) means
-                    // I can listen to and identify my own video in the embedded video player!
-                    // But it would stop the current and show a list of similar videos
-                    StopCurrentVideo();
-
-                    BindWebView2Control(videoInfo.YouTubeWebSiteSearch);
-
-                    if (await UpdateSongInfoSectionAsync(videoInfo))
-                    {
-                        // Hang on this for MySQL
-                        _lastVideoInfo = videoInfo;
-
-                        UpdateAzureAddDeleteButtonStates();
-                        UpdateMySQLAddDeleteButtonStates();                        
-                        StatusMessage = $"Identified as '{videoInfo}'";
-                    }
-                }
-                else
-                {
-                    // See OperationCanceledException in Listen() for info
-                    ErrorStatusMessage = result.Item2.IsBlank() && _userCanceledListen ? "Canceled" : "Timed out";
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorStatusMessage = ex.Message;
-            }
-
-            ShowProgress(false);
-            SetCommandBusy(false);
-            ListenButtonText = _ListenToButtonText;
-        }
+        }        
 
         [RelayCommand]
         private void ExpandOrCollapseSongInfoSection()
@@ -318,41 +121,7 @@ namespace CSharpWpfShazam.ViewModelsViews
             SongInfoSectionVisibility = (SongInfoSectionVisibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
             _appService.UpdateSongInfoSectionVisibility(SongInfoSectionVisibility == Visibility.Visible);
         }
-
-        [RelayCommand]
-        private void AddMySQL()
-        {
-            if (_lastVideoInfo == null)
-            {
-                return;
-            }
-
-            try
-            {
-                var songInfo = new SongInfo
-                {
-                    Artist = _lastVideoInfo.Artist,
-                    Description = _lastVideoInfo.Song,
-                    CoverUrl = _lastVideoInfo.CoverUrl,
-                    Lyrics = SongLyrics,
-                    SongUrl = CurrentVideoUri // Assume CurrentVideoUri is a matching song or YouTube search
-                };
-                if (_mysqlService.AddSongInfo(songInfo, out string error))
-                {
-                    _isMySQLTabInSync = false;
-                    StatusMessage = "Song info added to MySQL DB";
-                }
-                else
-                {
-                    ErrorStatusMessage = error;
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorStatusMessage = ex.Message;
-            }
-        }
-
+      
         // Note: using AddAzureAsync() won't bind (maybe a bug with 'Async')
         [RelayCommand]
         private async Task AddAzure()
@@ -378,7 +147,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                 string error = await _azureService!.AddSongInfoAsync(songInfo, IsRestApiViaAuth);
                 if (error.IsBlank())
                 {
-                    _isAzureTabInSync = false;
+                    _isAzureTabInSync = false;                    
                     StatusMessage = $"Song info added to Azure SQL DB ({RestApiAuthInfo})";
                 }
                 else
@@ -394,7 +163,7 @@ namespace CSharpWpfShazam.ViewModelsViews
             {
                 Mouse.OverrideCursor = null;
             }
-        }
+        }        
 
         [RelayCommand]
         private async Task OpenInExternalBrowser()
@@ -463,15 +232,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                 OnPropertyChanged(nameof(IsErrorStatusMessage));
             }
         }
-
-        private void ShowProgress(bool isProgressOn)
-        {
-            if (SelectedDeviceSetting != null)
-            {
-                IsProgressOn = isProgressOn;
-            }
-        }
-
+        
         private void SetCommandBusy(bool isCommandBusy)
         {
             _isCommandBusy = isCommandBusy;
@@ -517,14 +278,6 @@ namespace CSharpWpfShazam.ViewModelsViews
                     YouTubeWebView2Control.Source = uri;
                 }
             }
-        }
-
-        private void DebugDumpVideoInfo(VideoInfo videoInfo)
-        {
-            Debug.WriteLine("****VideoInfo");
-            Debug.WriteLine($"Artist: {videoInfo.Artist}");
-            Debug.WriteLine($"Song: {videoInfo.Song}");
-            Debug.WriteLine($"CoverUrl: {videoInfo.CoverUrl}");
-        }
+        }        
     }
 }

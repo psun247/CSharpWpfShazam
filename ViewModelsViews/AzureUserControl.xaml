@@ -3,56 +3,64 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             xmlns:ui="http://schemas.modernwpf.com/2019"        
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="#EDEDED">
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="70"/>
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="375" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Button Content="Delete from Azure" Command="{Binding DeleteAzureCommand}" IsEnabled="{Binding IsDeleteAzureEnabled}"
-                    ToolTip="Delete selected song info from Azure SQL DB via REST API" Style="{StaticResource ShazamButtonStyle}"
-                    Margin="10,15,0,0" />
-            <Button Content="Refresh" Command="{Binding RefreshAzureCommand}" IsEnabled="{Binding IsCommandNotBusy}"
-                    ToolTip="REfresh song info list via Web API" Style="{StaticResource ShazamButtonStyle}"
-                    Margin="20,15,0,0" />
+                    ToolTip="Delete selected song info from Azure SQL DB via REST API" Margin="15,0,0,0" />
+            <Button Command="{Binding RefreshAzureCommand}" IsEnabled="{Binding IsCommandNotBusy}"
+                    ToolTip="Refresh song info list via REST API" Padding="10,5" Margin="20,0,0,0">
+                <ui:SymbolIcon Symbol="Refresh" />
+            </Button>
             <CheckBox Content="{Binding RestApiAuthOptionDescription}" IsChecked="{Binding IsRestApiViaAuth}" 
-                      FontSize="16" Margin="20,5,0,0" />
+                      ToolTip="{Binding RestApiAuthOptionDescription}" FontSize="16" Margin="20,5,0,0" />
         </StackPanel>
-        <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding SongInfoListFromAzure}" SelectedItem="{Binding SelectedSongInfoFromAzure}" 
-                          IsEnabled="{Binding IsCommandNotBusy}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto" Margin="10,0,10,10">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Song" Width="340">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <!--Need Grid (not StackPanel) for TextBlock to wrap-->
-                            <Grid Background="#19000000">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="120" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
 
-                                <Ellipse Height="100" Width="100" Margin="10">
-                                    <Ellipse.Fill>
-                                        <ImageBrush ImageSource="{Binding CoverUrl, TargetNullValue={x:Null}}" Stretch="UniformToFill" />
-                                    </Ellipse.Fill>
-                                </Ellipse>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{Binding .}" TextWrapping="Wrap" FontSize="20" Padding="5,2" Margin="5,7,5,0" />
-                                </StackPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding AzureWebView2Control}" IsEnabled="{Binding IsCommandNotBusy}" />
+        <Border Grid.Row="1" BorderThickness="0,3,0,0" BorderBrush="{StaticResource ShazamThemeBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="295" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <DataGrid ItemsSource="{Binding SongInfoListFromAzure}" SelectedItem="{Binding SelectedSongInfoFromAzure}" 
+                          IsEnabled="{Binding IsCommandNotBusy}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto" Margin="5">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Song" Width="270">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <!--Need Grid (not StackPanel) for TextBlock to wrap-->
+                                    <Grid Background="#19000000">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Ellipse Height="80" Width="80" Margin="10">
+                                            <Ellipse.Fill>
+                                                <ImageBrush ImageSource="{Binding CoverUrl, TargetNullValue={x:Null}}" Stretch="UniformToFill" />
+                                            </Ellipse.Fill>
+                                        </Ellipse>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding .}" TextWrapping="Wrap" FontSize="18" 
+                                                       Padding="5,2" Margin="3" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <ContentControl Grid.Column="1" Content="{Binding AzureWebView2Control}" IsEnabled="{Binding IsCommandNotBusy}" />
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

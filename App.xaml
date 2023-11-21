@@ -10,9 +10,7 @@
                         <ResourceDictionary x:Key="Light" ui:ThemeDictionary.Key="Light">
                             <ResourceDictionary.MergedDictionaries>
                             </ResourceDictionary.MergedDictionaries>
-                            <SolidColorBrush x:Key="AppBackgroundBrush" Color="#FFF1F1F1" />
-                            <SolidColorBrush x:Key="AppContentBackgroundBrush" Color="{StaticResource SystemAltHighColor}" />
-                            <SolidColorBrush x:Key="ShazamThemeBrush" Color="#990078D4" />
+                            <SolidColorBrush x:Key="ShazamThemeBrush" Color="#FF0078D7" />
                         </ResourceDictionary>
                     </ui:ThemeResources.ThemeDictionaries>
                 </ui:ThemeResources>
@@ -27,21 +25,13 @@
             </Style>
 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-
-            <!--Can't use {x:Type Button} here!
-                    https://stackoverflow.com/questions/13016932/how-to-create-a-style-based-on-default-style
-                    https://learn.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/ms601371(v=vs.95)?redirectedfrom=MSDN-->
-            <Style x:Key="BaseButtonStyle" TargetType="Button">
-                <Setter Property="Foreground" Value="WhiteSmoke" />
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="FontSize" Value="20" />
-                <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Padding" Value="12,2,12,6" />
-            </Style>
-            <Style x:Key="ShazamButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+                      
+            <Style x:Key="ShazamButtonStyle" TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
                 <Setter Property="Background" Value="{StaticResource ShazamThemeBrush}" />
-                <Setter Property="VerticalAlignment" Value="Top" />
-                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="Padding" Value="12,3,12,5" />
+            </Style>
+            <Style TargetType="Button" BasedOn="{StaticResource ShazamButtonStyle}">
             </Style>
             <Style TargetType="TabItem" BasedOn="{StaticResource DefaultTabItemStyle}">
                 <Setter Property="FontSize" Value="18" />
@@ -50,10 +40,9 @@
                         <Setter Property="FontWeight" Value="SemiBold" />
                         <Setter Property="TextElement.Foreground" Value="Black" />
                     </Trigger>
-                    <!--#FF0078D4 "darker" than ShazamThemeBrush-->
                     <Trigger Property="IsSelected" Value="False">
                         <Setter Property="FontWeight" Value="Normal" />
-                        <Setter Property="TextElement.Foreground" Value="#FF0078D4" />
+                        <Setter Property="TextElement.Foreground" Value="Black" />
                     </Trigger>
                 </Style.Triggers>
             </Style>

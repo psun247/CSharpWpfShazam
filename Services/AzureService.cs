@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ClientServerShared;
@@ -59,8 +58,7 @@ namespace CSharpWpfShazam.Services
                 Description = x.Description,
                 CoverUrl = x.CoverUrl,
                 Lyrics = x.Lyrics,
-                SongUrl = x.SongUrl,                
-                IsDeleted = x.IsDeleted,
+                SongUrl = x.SongUrl,                                
             }).ToList() ?? new List<SongInfo>();
         }
 

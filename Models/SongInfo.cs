@@ -28,8 +28,7 @@ namespace CSharpWpfShazam.Models
         [Required(ErrorMessage = "SongUrl is a YouTube url and required")]
         public string SongUrl { get; set; } = string.Empty;
 
-        public DateTime? ModifiedDateTime { get; set; }
-        public bool IsDeleted { get; set; }
+        public DateTime? ModifiedDateTime { get; set; }        
 
         public override string ToString() => Artist.IsNotBlank() ? $"{Artist} - {Description}" : Description;
     }

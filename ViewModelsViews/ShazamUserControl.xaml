@@ -3,12 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"              
+             xmlns:ui="http://schemas.modernwpf.com/2019"        
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <!--Open in Browser and YouTube WebView2-->
     <Grid Background="#EDEDED">
         <Grid.RowDefinitions>
-            <RowDefinition Height="66" />
+            <RowDefinition Height="70" />
             <RowDefinition Height="*" MinHeight="230" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -16,24 +17,55 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0" Orientation="Horizontal">
-            <Button Content="Add to Azure" ToolTip="Add newly identified song info to Azure SQL DB via REST API"                            
-                    Command="{Binding AddAzureCommand}" IsEnabled="{Binding IsAddAzureEnabled}"
-                    Style="{StaticResource ShazamButtonStyle}" Margin="15,15,0,0" />
-            <Button Content="Add to MySQL" ToolTip="Add newly identified song info to local MySQL DB"                            
-                    Command="{Binding AddMySQLCommand}" IsEnabled="{Binding IsAddMySQLEnabled}"
-                    Style="{StaticResource ShazamButtonStyle}" Margin="15,15,0,0" />
-            <Button Content="Open in Browser" ToolTip="Open current video with default external browser"                            
-                    Command="{Binding OpenInExternalBrowserCommand}" 
-                    Style="{StaticResource ShazamButtonStyle}" Margin="20,15,0,0" />
-        </StackPanel>
-        <!--UpdateSourceTrigger=PropertyChanged needed for KeyBinding to work. No 'Go' button in xaml.-->
-        <TextBox Grid.Column="1" Text="{Binding CurrentVideoUri, UpdateSourceTrigger=PropertyChanged}" 
-                        Height="36" FontSize="16" Margin="0,10,15,10">
-            <TextBox.InputBindings>
-                <KeyBinding Command="{Binding GoVideoUrlCommand}" Key="Enter" />
-            </TextBox.InputBindings>
-        </TextBox>
+        <!--Listen to device or Cancel / status row-->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,3" BorderBrush="{StaticResource ShazamThemeBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="{Binding ListenButtonText}" Command="{Binding ListenOrCancelCommand}" 
+                            ToolTip="Listen to a selected device"  Margin="15,0,0,0" />
+                <ComboBox Grid.Column="1" IsEnabled="{Binding IsCommandNotBusy}" Height="35"
+                            ItemsSource="{Binding DeviceSettingList}" SelectedItem="{Binding SelectedDeviceSetting}"                            
+                            ToolTip="Hint: select a device with 'speaker' or 'microphone'"  Margin="15,15,0,5" />
+                <Button Grid.Column="2" ToolTip="Reload device list"                            
+                        Command="{Binding ReloadDeviceListCommand}" IsEnabled="{Binding IsCommandNotBusy}" 
+                        Padding="10,5" Margin="15,0,0,0" >
+                    <ui:SymbolIcon Symbol="Refresh" />
+                </Button>
+                <ui:ProgressRing Grid.Column="3" IsActive="{Binding IsProgressOn}" Foreground="Green" 
+                                Height="20" Width="20" Margin="10,0,0,0" />
+                <Grid Grid.Column="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="390" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Add to Azure" ToolTip="Add newly identified song info to Azure SQL DB via REST API"                            
+                            Command="{Binding AddAzureCommand}" IsEnabled="{Binding IsAddAzureEnabled}" Margin="15,0,0,0" />
+                        <Button Content="Add to MySQL" ToolTip="Add newly identified song info to local MySQL DB"                            
+                            Command="{Binding AddMySQLCommand}" IsEnabled="{Binding IsAddMySQLEnabled}" Margin="15,0,0,0" />
+                        <Button ToolTip="Open current video with default external browser"                            
+                                Command="{Binding OpenInExternalBrowserCommand}" Padding="10,5" Margin="15,0,0,0" >
+                            <ui:SymbolIcon Symbol="Globe" />
+                        </Button>
+                    </StackPanel>
+                    <!--UpdateSourceTrigger=PropertyChanged needed for KeyBinding to work. No 'Go' button in xaml.-->
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CurrentVideoUri, UpdateSourceTrigger=PropertyChanged}" 
+                        Height="32" FontSize="14" Margin="10,10,15,10">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding GoVideoUrlCommand}" Key="Enter" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                </Grid>
+            </Grid>
+        </Border>
         <!--YouTube WebView2-->
         <ContentControl Grid.Row="1" Grid.ColumnSpan="2" Content="{Binding YouTubeWebView2Control}" IsEnabled="{Binding IsCommandNotBusy}" />
     </Grid>

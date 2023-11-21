@@ -10,6 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\azure.png" />
+    <None Remove="Assets\database.png" />
+    <None Remove="Assets\shazam.png" />
     <None Remove="CSharpWpfShazam.ico" />
   </ItemGroup>
 
@@ -35,6 +38,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\azure.png" />
+    <Resource Include="Assets\database.png" />
+    <Resource Include="Assets\shazam.png" />
     <Resource Include="CSharpWpfShazam.ico" />
   </ItemGroup>
 

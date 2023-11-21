@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -20,6 +21,8 @@ namespace CSharpWpfShazam.ViewModelsViews
         SongInfo? _selectedSongInfoFromAzure;
         public WebView2 AzureWebView2Control { get; private set; } = new();
         [ObservableProperty]
+        bool _isDeleteAzureEnabled;
+        [ObservableProperty]
         bool _isRestApiViaAuth;
         [ObservableProperty]
         string? _restApiAuthOptionDescription;
@@ -34,19 +37,45 @@ namespace CSharpWpfShazam.ViewModelsViews
             OnPropertyChanged(nameof(AzureWebView2Control));
         }
 
-        private async Task LoadSongInfoListOnAzureTabAsync(bool isFromRefresh = false)
+        public async void OnAzureTabActivated(bool isActivated)
+        {
+            _isAzureTabActive = isActivated;
+            if (_isAzureTabActive)
+            {
+                _appService.AppSettings.SelectedTabName = AppSettings.AzureTabName;
+                IsRestApiViaAuth = _appService.AppSettings.IsRestApiViaAuth;
+                OnIsRestApiViaAuthChanged(IsRestApiViaAuth);
+                StatusMessage = "To listen to a song to identify, go back to Shazam tab";
+
+                if (!_isAzureTabInSync)
+                {
+                    await LoadSongInfoListOnAzureTabAsync();
+
+                    // Auto-select SongInfoListFromAzure
+                    var songInfo = SongInfoListFromAzure.FirstOrDefault(x => x.SongUrl == _appService.AppSettings.SelectedSongUrl);
+                    if (songInfo != null && songInfo != SelectedSongInfoFromAzure)
+                    {
+                        SelectedSongInfoFromAzure = songInfo;
+                    }
+
+                    _isAzureTabInSync = true;
+                }
+            }            
+            UpdateAzureTabButtons();
+        }
+
+        private async Task LoadSongInfoListOnAzureTabAsync()
         {
             try
             {
                 Mouse.OverrideCursor = Cursors.Wait;
 
+                StatusMessage = $"Loading song info list from Azure SQL DB ({RestApiAuthInfo})...please wait";
+
                 var list = await _azureService!.GetAllSongInfoListAsync(IsRestApiViaAuth);
                 SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
 
-                if (isFromRefresh)
-                {
-                    StatusMessage = list.Count == 0 ? $"No song info found at Azure SQL DB ({RestApiAuthInfo})" : $"Song info list loaded from Azure SQL DB ({RestApiAuthInfo})";
-                }
+                StatusMessage = list.Count == 0 ? $"No song info found at Azure SQL DB ({RestApiAuthInfo})" : $"Song info list loaded from Azure SQL DB ({RestApiAuthInfo})";                
             }
             catch (Exception ex)
             {
@@ -79,11 +108,14 @@ namespace CSharpWpfShazam.ViewModelsViews
             {
                 Mouse.OverrideCursor = Cursors.Wait;
 
+                StatusMessage = $"Deleting song info from Azure SQL DB ({RestApiAuthInfo})...please wait";
+
                 string error = await _azureService!.DeleteSongInfoAsync(SelectedSongInfoFromAzure.SongUrl, IsRestApiViaAuth);
                 if (error.IsBlank())
                 {
-                    SongInfoListFromAzure = new ObservableCollection<SongInfo>(await _azureService!.GetAllSongInfoListAsync(IsRestApiViaAuth));
-                    UpdateAzureAddDeleteButtonStates();
+                    SongInfoListFromAzure = new ObservableCollection<SongInfo>(
+                                                    await _azureService!.GetAllSongInfoListAsync(IsRestApiViaAuth));                    
+                    UpdateAzureTabButtons();
                     StatusMessage = $"Song info deleted from Azure SQL DB ({RestApiAuthInfo})";
                 }
                 else
@@ -104,7 +136,7 @@ namespace CSharpWpfShazam.ViewModelsViews
         [RelayCommand]
         private async Task RefreshAzure()
         {
-            await LoadSongInfoListOnAzureTabAsync(isFromRefresh: true);
+            await LoadSongInfoListOnAzureTabAsync();
         }
 
         partial void OnSelectedSongInfoFromAzureChanged(SongInfo? value)
@@ -124,21 +156,27 @@ namespace CSharpWpfShazam.ViewModelsViews
                 SongLyrics = value.Lyrics;
                 AzureWebView2Control.Source = new Uri(value.SongUrl);
                 _appService.AppSettings.SelectedSongUrl = value.SongUrl;
-            }
-            UpdateAzureAddDeleteButtonStates();
-        }
+            }            
+            UpdateAzureTabButtons();
+        }      
 
         partial void OnIsRestApiViaAuthChanged(bool value)
         {
             _appService.AppSettings.IsRestApiViaAuth = value;
             if (value)
             {
-                RestApiAuthOptionDescription = $"REST API with auth ({_azureService?.RestApiUrlAuth})";
+                RestApiAuthOptionDescription = $"Use REST API with auth ({_azureService?.RestApiUrlAuth})";
             }
             else
             {
-                RestApiAuthOptionDescription = $"REST API with no-auth ({_azureService?.RestApiUrlNoAuth})";
+                RestApiAuthOptionDescription = $"Use REST API with no-auth ({_azureService?.RestApiUrlNoAuth})";
             }
+        }
+
+        private void UpdateAzureTabButtons()
+        {
+            IsDeleteAzureEnabled = _isAzureTabActive &&
+                                    SongInfoListFromAzure.Count > 0 && SelectedSongInfoFromAzure != null;                                    
         }
     }
 }

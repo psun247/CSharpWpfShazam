@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Linq;
 using Microsoft.Web.WebView2.Wpf;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,10 +18,13 @@ namespace CSharpWpfShazam.ViewModelsViews
         [ObservableProperty]
         SongInfo? _selectedSongInfoFromMySQL;
         public WebView2 MySQLWebView2Control { get; private set; } = new();
+        [ObservableProperty]
+        bool _isDeleteMySQLEnabled;
         public string SwitchModeButtonText => _appService.AppSettings.IsMySQLEnabled ? "Switch to Demo Mode" : "Switch to MySQL Mode";
+        // Keep SwitchModeDescriptionText short for UI space
         public string SwitchModeDescriptionText => _appService.AppSettings.IsMySQLEnabled ?
-                            "Current mode is MySQL, which displays a dynamic song info list from MySQL DB" :
-                                "Current mode is Demo, which displays a predefined read-only song info list";
+                            "(Current mode is MySQL, displaying a dynamic list from local MySQL DB)" :
+                                "(Current mode is Demo, displaying a predefined read-only list)";
 
         private void InitializeMySQLTab()
         {
@@ -30,6 +34,38 @@ namespace CSharpWpfShazam.ViewModelsViews
                 Source = _YouTubeHomeUri,
             };
             OnPropertyChanged(nameof(MySQLWebView2Control));            
+        }
+
+        public void OnMySQLTabActivated(bool isActivated)
+        {
+            _isMySQLTabActive = isActivated;
+            if (_isMySQLTabActive)
+            {
+                _appService.AppSettings.SelectedTabName = AppSettings.MySQLTabName;
+                StatusMessage = "To listen to a song to identify, go back to Shazam tab";
+
+                if (!_isMySQLTabInSync)
+                {                    
+                    if (!LoadSongInfoListOnMySQLTab())
+                    {
+                        // Ensure demo mode
+                        DemoModeBindSongInfoListFromMySQL();
+                        _appService.UpdateMySQLEnabled(false);
+                        OnPropertyChanged(nameof(SwitchModeButtonText));
+                        OnPropertyChanged(nameof(SwitchModeDescriptionText));
+                    }
+
+                    // Auto-select SelectedSongInfoFromMySQL
+                    var songInfo = SongInfoListFromMySQL.FirstOrDefault(x => x.SongUrl == _appService.AppSettings.SelectedSongUrl);
+                    if (songInfo != null && songInfo != SelectedSongInfoFromMySQL)
+                    {
+                        SelectedSongInfoFromMySQL = songInfo;
+                    }
+
+                    _isMySQLTabInSync = true;
+                }
+            }            
+            UpdateMySQLTabButtons();
         }
 
         private bool LoadSongInfoListOnMySQLTab()
@@ -60,7 +96,7 @@ namespace CSharpWpfShazam.ViewModelsViews
             {
                 // e.g.  Access denied for user 'root'@'localhost' (using password: YES)                
                 ErrorStatusMessage = ex.Message;
-            }            
+            }           
             catch (Exception ex)
             {
                 ErrorStatusMessage = ex.Message;
@@ -87,10 +123,10 @@ namespace CSharpWpfShazam.ViewModelsViews
                 SongCoverUrl = value.CoverUrl;
                 SongInfoText = value.ToString();
                 SongLyrics = value.Lyrics;
-                MySQLWebView2Control.Source = new Uri(value.SongUrl);
+                MySQLWebView2Control.Source = new Uri(value.SongUrl); // TODO: maybe test SongUrl is valid
                 _appService.AppSettings.SelectedSongUrl = value.SongUrl;
-            }
-            UpdateMySQLAddDeleteButtonStates();
+            }            
+            UpdateMySQLTabButtons();
         }
 
         [RelayCommand]
@@ -108,8 +144,8 @@ namespace CSharpWpfShazam.ViewModelsViews
 
                     if (_mysqlService.DeleteSongInfo(SelectedSongInfoFromMySQL.SongUrl))
                     {
-                        SongInfoListFromMySQL = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfoList());
-                        UpdateMySQLAddDeleteButtonStates();
+                        SongInfoListFromMySQL = new ObservableCollection<SongInfo>(_mysqlService.GetAllSongInfoList());                        
+                        UpdateMySQLTabButtons();
                         StatusMessage = "Song info deleted from MySQL DB";
                     }
                     else
@@ -149,8 +185,8 @@ namespace CSharpWpfShazam.ViewModelsViews
 
                 if (LoadSongInfoListOnMySQLTab(!_appService.AppSettings.IsMySQLEnabled))
                 {
-                    _appService.UpdateMySQLEnabled(!_appService.AppSettings.IsMySQLEnabled);
-                    UpdateMySQLAddDeleteButtonStates();
+                    _appService.UpdateMySQLEnabled(!_appService.AppSettings.IsMySQLEnabled);                    
+                    UpdateMySQLTabButtons();
                     OnPropertyChanged(nameof(SwitchModeButtonText));
                     OnPropertyChanged(nameof(SwitchModeDescriptionText));
                 }
@@ -159,6 +195,12 @@ namespace CSharpWpfShazam.ViewModelsViews
             {
                 ErrorStatusMessage = ex.Message;
             }
+        }
+
+        private void UpdateMySQLTabButtons()
+        {
+            IsDeleteMySQLEnabled = _appService.AppSettings.IsMySQLEnabled && _isMySQLTabActive &&
+                                    SongInfoListFromMySQL.Count > 0 && SelectedSongInfoFromMySQL != null;
         }
 
         private void DemoModeBindSongInfoListFromMySQL()
@@ -194,7 +236,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                         Lyrics = "[Intro]\r\nA new day (Ah-ah)\r\nA new day (Ah-ah)\r\n\r\n[Verse 1]\r\nI was waiting for so long\r\nFor a miracle to come\r\nEveryone told me to be strong\r\nHold on, and don't shed a tear\r\nThrough the darkness and good times\r\nI knew I'd make it through\r\nAnd the world thought I had it all\r\nBut I was waiting for you\r\n\r\n[Pre-Chorus]\r\nHush, now\r\nI see a light in the sky\r\nOh, it's almost blinding me\r\nI can't believe I've been touched by an angel with love\r\n\r\n[Chorus]\r\nLet the rain come down and wash away my tears\r\nLet it fill my soul and drown my fears\r\nLet it shatter the walls for a new sun\r\nA new day has come\r\n(Oh, oh, oh)\r\n[Verse 2]\r\nWhere it was dark, now there’s light\r\nWhere there was pain, now there's joy\r\nWhere there was weakness, I found my strength\r\nAll in the eyes of a boy\r\n\r\n[Pre-Chorus]\r\nHush, now\r\nI see a light in the sky\r\nOh, it's almost blinding me\r\nI can't believe I've been touched by an angel with love\r\n\r\n[Chorus]\r\nLet the rain come down and wash away my tears\r\nLet it fill my soul and drown my fears (And drown my fears)\r\nLet it shatter the walls for a new sun\r\nA new day has\r\nLet the rain come down and wash away my tears\r\nLet it fill my soul and drown my fears\r\nLet it shatter the walls for a new sun\r\nA new day has come (Oh, a light, ah-ah)\r\n\r\n[Post-Chorus]\r\nHush, now (Ah-ah), I see a light in your eyes\r\nAll in the eyes of a boy (Ah-ah, a new day)\r\nI can't believe I've been touched by an angel with love (A new day)\r\nI can't believe I've been touched by an angel with love (A new day)\r\n(A new day) Oh\r\n[Outro]\r\nHush, now (Ah-ah)\r\nA new day (Ah-ah)\r\nHush, now (Ah-ah)\r\nA new day (Ah-ah)",
                         SongUrl = "https://youtu.be/NaGLVS5b_ZY"
                     },
-                };
+                };            
         }
     }
 }
