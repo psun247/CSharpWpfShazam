@@ -136,7 +136,7 @@ namespace CSharpWpfShazam.ViewModelsViews
 
             try
             {
-                StatusMessage = $"Adding song info to Azure SQL DB ({RestApiAuthInfo})...please wait";
+                StatusMessage = $"Adding song info to Azure SQL DB ({WebApiAuthInfo})...please wait";
 
                 var songInfo = new SongInfo
                 {

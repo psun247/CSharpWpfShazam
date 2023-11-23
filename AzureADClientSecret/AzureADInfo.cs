@@ -2,8 +2,8 @@
 {
     public class AzureADInfo
     {
-        // https://localhost:7025/SongRepo in AzureADClientSecret\appsettings.json (copied to runtime folder)
-        public string RestApiEndpoint { get; set; } = string.Empty;
+        // https://localhost:7025/songrepo in AzureADClientSecret\appsettings.json (copied to runtime folder)
+        public string WebApiEndpoint { get; set; } = string.Empty;
         // Bearer token
         public string AccessToken { get; set; } = string.Empty;
     }

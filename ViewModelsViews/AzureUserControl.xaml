@@ -14,13 +14,13 @@
 
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
             <Button Content="Delete from Azure" Command="{Binding DeleteAzureCommand}" IsEnabled="{Binding IsDeleteAzureEnabled}"
-                    ToolTip="Delete selected song info from Azure SQL DB via REST API" Margin="15,0,0,0" />
+                    ToolTip="Delete selected song info from Azure SQL DB via Web API" Margin="15,0,0,0" />
             <Button Command="{Binding RefreshAzureCommand}" IsEnabled="{Binding IsCommandNotBusy}"
-                    ToolTip="Refresh song info list via REST API" Padding="10,5" Margin="20,0,0,0">
+                    ToolTip="Refresh song info list via Web API" Padding="10,5" Margin="20,0,0,0">
                 <ui:SymbolIcon Symbol="Refresh" />
             </Button>
-            <CheckBox Content="{Binding RestApiAuthOptionDescription}" IsChecked="{Binding IsRestApiViaAuth}" 
-                      ToolTip="{Binding RestApiAuthOptionDescription}" FontSize="16" Margin="20,5,0,0" />
+            <CheckBox Content="{Binding WebApiAuthOptionDescription}" IsChecked="{Binding IsWebApiViaAuth}" 
+                      ToolTip="{Binding WebApiAuthOptionDescription}" FontSize="16" Margin="20,5,0,0" />
         </StackPanel>
 
         <Border Grid.Row="1" BorderThickness="0,3,0,0" BorderBrush="{StaticResource ShazamThemeBrush}">

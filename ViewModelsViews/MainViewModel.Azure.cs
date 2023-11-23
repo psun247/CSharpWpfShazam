@@ -23,9 +23,9 @@ namespace CSharpWpfShazam.ViewModelsViews
         [ObservableProperty]
         bool _isDeleteAzureEnabled;
         [ObservableProperty]
-        bool _isRestApiViaAuth;
+        bool _isWebApiViaAuth;
         [ObservableProperty]
-        string? _restApiAuthOptionDescription;
+        string? _webApiAuthOptionDescription;
 
         private void InitializeAzureLTab()
         {
@@ -43,8 +43,8 @@ namespace CSharpWpfShazam.ViewModelsViews
             if (_isAzureTabActive)
             {
                 _appService.AppSettings.SelectedTabName = AppSettings.AzureTabName;
-                IsRestApiViaAuth = _appService.AppSettings.IsRestApiViaAuth;
-                OnIsRestApiViaAuthChanged(IsRestApiViaAuth);
+                IsWebApiViaAuth = _appService.AppSettings.IsWebApiViaAuth;
+                OnIsWebApiViaAuthChanged(IsWebApiViaAuth);
                 StatusMessage = "To listen to a song to identify, go back to Shazam tab";
 
                 if (!_isAzureTabInSync)
@@ -70,12 +70,12 @@ namespace CSharpWpfShazam.ViewModelsViews
             {
                 Mouse.OverrideCursor = Cursors.Wait;
 
-                StatusMessage = $"Loading song info list from Azure SQL DB ({RestApiAuthInfo})...please wait";
+                StatusMessage = $"Loading song info list from Azure SQL DB ({WebApiAuthInfo})...please wait";
 
-                var list = await _azureService!.GetAllSongInfoListAsync(IsRestApiViaAuth);
+                var list = await _azureService!.GetAllSongInfoListAsync(IsWebApiViaAuth);
                 SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
 
-                StatusMessage = list.Count == 0 ? $"No song info found at Azure SQL DB ({RestApiAuthInfo})" : $"Song info list loaded from Azure SQL DB ({RestApiAuthInfo})";                
+                StatusMessage = list.Count == 0 ? $"No song info found at Azure SQL DB ({WebApiAuthInfo})" : $"Song info list loaded from Azure SQL DB ({WebApiAuthInfo})";                
             }
             catch (Exception ex)
             {
@@ -98,7 +98,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                 return;
             }
 
-            if (MessageBox.Show("Are you sure you want to delete the selected song info from Azure SQL DB via REST API?", "Confirmation",
+            if (MessageBox.Show("Are you sure you want to delete the selected song info from Azure SQL DB via Web API?", "Confirmation",
                            MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
             {
                 return;
@@ -108,15 +108,15 @@ namespace CSharpWpfShazam.ViewModelsViews
             {
                 Mouse.OverrideCursor = Cursors.Wait;
 
-                StatusMessage = $"Deleting song info from Azure SQL DB ({RestApiAuthInfo})...please wait";
+                StatusMessage = $"Deleting song info from Azure SQL DB ({WebApiAuthInfo})...please wait";
 
-                string error = await _azureService!.DeleteSongInfoAsync(SelectedSongInfoFromAzure.SongUrl, IsRestApiViaAuth);
+                string error = await _azureService!.DeleteSongInfoAsync(SelectedSongInfoFromAzure.SongUrl, IsWebApiViaAuth);
                 if (error.IsBlank())
                 {
                     SongInfoListFromAzure = new ObservableCollection<SongInfo>(
-                                                    await _azureService!.GetAllSongInfoListAsync(IsRestApiViaAuth));                    
+                                                    await _azureService!.GetAllSongInfoListAsync(IsWebApiViaAuth));                    
                     UpdateAzureTabButtons();
-                    StatusMessage = $"Song info deleted from Azure SQL DB ({RestApiAuthInfo})";
+                    StatusMessage = $"Song info deleted from Azure SQL DB ({WebApiAuthInfo})";
                 }
                 else
                 {
@@ -160,16 +160,16 @@ namespace CSharpWpfShazam.ViewModelsViews
             UpdateAzureTabButtons();
         }      
 
-        partial void OnIsRestApiViaAuthChanged(bool value)
+        partial void OnIsWebApiViaAuthChanged(bool value)
         {
-            _appService.AppSettings.IsRestApiViaAuth = value;
+            _appService.AppSettings.IsWebApiViaAuth = value;
             if (value)
             {
-                RestApiAuthOptionDescription = $"Use REST API with auth ({_azureService?.RestApiUrlAuth})";
+                WebApiAuthOptionDescription = $"Use Web API with auth ({_azureService?.WebApiUrlAuth})";
             }
             else
             {
-                RestApiAuthOptionDescription = $"Use REST API with no-auth ({_azureService?.RestApiUrlNoAuth})";
+                WebApiAuthOptionDescription = $"Use Web API with no-auth ({_azureService?.WebApiUrlNoAuth})";
             }
         }
 

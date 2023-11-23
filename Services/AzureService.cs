@@ -20,9 +20,9 @@ namespace CSharpWpfShazam.Services
 
         private AzureService(AzureADInfo azureADInfo)
         {
-            // Make https://localhost:7025/SongRepoNoAuth
-            _webApiClientNoAuth = new WebApiClient(azureADInfo.RestApiEndpoint + "noauth");
-            _webApiClientAuth = new WebApiClient(azureADInfo.RestApiEndpoint, azureADInfo.AccessToken);
+            // Make https://localhost:7025/songreponoauth
+            _webApiClientNoAuth = new WebApiClient(azureADInfo.WebApiEndpoint + "noauth");
+            _webApiClientAuth = new WebApiClient(azureADInfo.WebApiEndpoint, azureADInfo.AccessToken);
         }
 
         public static async Task<AzureService> CreateAsync()
@@ -31,9 +31,9 @@ namespace CSharpWpfShazam.Services
             {
                 AzureADInfo azureADInfo = await AuthConfig.GetAzureADInfoAsync();
 #if DEBUG               
-                // Overwrite RestApiEndpoint in appsettings.json in Debug build
-                //azureADInfo.RestApiEndpoint = "https://localhost:7025/SongRepo";
-                //Debug.WriteLine($"****Overwrite RestApiEndpoint in Debug build: {azureADInfo.RestApiEndpoint}");
+                // Overwrite WebApiEndpoint in appsettings.json in Debug build
+                //azureADInfo.WebApiEndpoint = "https://localhost:7025/songrepo";
+                //Debug.WriteLine($"****Overwrite WebApiEndpoint in Debug build: {azureADInfo.WebApiEndpoint}");
 #endif
                 return new AzureService(azureADInfo);
             }
@@ -44,8 +44,8 @@ namespace CSharpWpfShazam.Services
             return new AzureService();
         }
 
-        public string? RestApiUrlNoAuth => _webApiClientNoAuth?.AzureServiceWebApiEndpoint;
-        public string? RestApiUrlAuth => _webApiClientAuth?.AzureServiceWebApiEndpoint;
+        public string? WebApiUrlNoAuth => _webApiClientNoAuth?.AzureServiceWebApiEndpoint;
+        public string? WebApiUrlAuth => _webApiClientAuth?.AzureServiceWebApiEndpoint;
 
         public async Task<List<SongInfo>> GetAllSongInfoListAsync(bool viaAuth)
         {
@@ -78,7 +78,7 @@ namespace CSharpWpfShazam.Services
                     }
                 });
 
-            return response?.Error ?? "Error: didn't get a response from REST API";
+            return response?.Error ?? "Error: didn't get a response from Web API";
         }
 
         public async Task<string> DeleteSongInfoAsync(string songUrl, bool viaAuth)
@@ -87,7 +87,7 @@ namespace CSharpWpfShazam.Services
             DeleteSongInfoResponse? response =
                 await webApiClient.DeleteSongInfoAsync(new DeleteSongInfoRequest { SongUrl = songUrl });
 
-            return response?.Error ?? "Error: didn't get a response from REST API";
+            return response?.Error ?? "Error: didn't get a response from Web API";
         }
 
         private WebApiClient? GetWebApiClient(bool viaAuth)

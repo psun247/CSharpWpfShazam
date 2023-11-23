@@ -1,10 +1,10 @@
 # CSharpWpfShazam
-This is a C# WPF app that identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via REST API or in local MySQL DB.
+This is a C# WPF app that identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API or in local MySQL DB.
 
 # Shazam tab
 ![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/014e1450-94ab-4ea9-99ea-b9ada5da0d1b)
 
-# Azure (REST API) tab
+# Azure (Web API) tab
 ![image](https://github.com/psun247/CSharpWpfShazam/assets/31531761/74e29665-d048-4b66-a3e1-763eac83026e)
 
 # MySQL (could be MS SQL Server) tab
@@ -20,7 +20,7 @@ To run the app without compiling it,
 3. Unzip the file and run CSharpWpfShazam.exe
 
 # Usage
-Audio devices will be automatically queried and displayed in the dropdown list.  You will need to select a proper device for 'Listen to'.  Add and Delete buttons are for Azure SQL DB (via REST API) or local MySQL DB (MS SQL Server could easily be used instead). The blue arrow on the right side of the screen will expand or collapse the song info section.
+Audio devices will be automatically queried and displayed in the dropdown list.  You will need to select a proper device for 'Listen to'.  Add and Delete buttons are for Azure SQL DB (via Web API) or local MySQL DB (MS SQL Server could easily be used instead). The blue arrow on the right side of the screen will expand or collapse the song info section.
 
 # Supporting libraries
 CommunityToolkit.Mvvm

@@ -47,7 +47,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="Add to Azure" ToolTip="Add newly identified song info to Azure SQL DB via REST API"                            
+                        <Button Content="Add to Azure" ToolTip="Add newly identified song info to Azure SQL DB via Web API"                            
                             Command="{Binding AddAzureCommand}" IsEnabled="{Binding IsAddAzureEnabled}" Margin="15,0,0,0" />
                         <Button Content="Add to MySQL" ToolTip="Add newly identified song info to local MySQL DB"                            
                             Command="{Binding AddMySQLCommand}" IsEnabled="{Binding IsAddMySQLEnabled}" Margin="15,0,0,0" />

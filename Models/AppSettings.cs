@@ -20,7 +20,7 @@
         public string SelectedTabName { get; set; } = ShazamTabName;
         // SongInfo.SongUrl
         public string SelectedSongUrl { get; set; } = string.Empty;
-        // Auth or no-auth REST API
-        public bool IsRestApiViaAuth { get; set; }
+        // Auth or no-auth Web API
+        public bool IsWebApiViaAuth { get; set; }
     }
 }

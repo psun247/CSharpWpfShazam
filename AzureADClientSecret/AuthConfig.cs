@@ -14,7 +14,7 @@ namespace CSharpWpfShazam.AzureADClientSecret
         public string ClientId { get; set; } = string.Empty;        
         public string Authority => string.Format(CultureInfo.InvariantCulture,   Instance, TenantId);               
         public string ClientSecret { get; set; } = string.Empty;
-        public string RestApiEndpoint { get; set; } = string.Empty;        
+        public string WebApiEndpoint { get; set; } = string.Empty;        
         public string ResourceId { get; set; } = string.Empty;
         
         public static async Task<AzureADInfo> GetAzureADInfoAsync()
@@ -32,7 +32,7 @@ namespace CSharpWpfShazam.AzureADClientSecret
 
                 // This Azure AD call uses both client info (app) and web api info (resourceIds)
                 AuthenticationResult authResult = await app.AcquireTokenForClient(resourceIds).ExecuteAsync();
-                azureADInfo.RestApiEndpoint = config.RestApiEndpoint;
+                azureADInfo.WebApiEndpoint = config.WebApiEndpoint;
                 azureADInfo.AccessToken = authResult?.AccessToken ?? string.Empty;                
             }
             return azureADInfo;

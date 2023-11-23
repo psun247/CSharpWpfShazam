@@ -38,7 +38,7 @@ namespace CSharpWpfShazam.ViewModelsViews
         private bool _isCommandBusy;
         private CancellationTokenSource? _cancelTokenSource;
         private bool _userCanceledListen;
-        private string RestApiAuthInfo => IsRestApiViaAuth ? "via authorized REST API" : "via no-auth REST API";
+        private string WebApiAuthInfo => IsWebApiViaAuth ? "via authorized Web API" : "via no-auth Web API";
 
         public MainViewModel(string appConfigFilePath)
         {
@@ -109,7 +109,7 @@ namespace CSharpWpfShazam.ViewModelsViews
 
             StopCurrentVideo(blankUriOnly: true);
 
-            // As of 2023-10-20+, only SelectedTabName, SelectedSongUrl, and IsRestApiViaAuth need to be saved on app shutdown
+            // As of 2023-10-20+, only SelectedTabName, SelectedSongUrl, and IsWebApiViaAuth need to be saved on app shutdown
             _appService.SaveAppSettings();
 
             return true;
@@ -144,11 +144,11 @@ namespace CSharpWpfShazam.ViewModelsViews
                     SongUrl = CurrentVideoUri
                 };
 
-                string error = await _azureService!.AddSongInfoAsync(songInfo, IsRestApiViaAuth);
+                string error = await _azureService!.AddSongInfoAsync(songInfo, IsWebApiViaAuth);
                 if (error.IsBlank())
                 {
                     _isAzureTabInSync = false;                    
-                    StatusMessage = $"Song info added to Azure SQL DB ({RestApiAuthInfo})";
+                    StatusMessage = $"Song info added to Azure SQL DB ({WebApiAuthInfo})";
                 }
                 else
                 {
