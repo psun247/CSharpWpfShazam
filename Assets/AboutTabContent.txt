@@ -1,0 +1,38 @@
+﻿
+--This file is a 'Embedded resource' read by this app and displayed on 'About' tab
+--
+--Any line starting with "--" is a comment line and will be ignored
+--Any line starting with "==" is a new paragraph header followed by detail lines
+--See MainViewModel.LoadContentForAboutTab and AboutUserControl
+
+==Overview
+Shazam is a popular mobile app that can identify a song being played. This C# WPF app does something like that. Plus, it calls a lyrics web service to try to get lyrics for the identified song. It can save song info in Azure SQL DB via Web API or in local MySQL DB.
+
+==Quick points on major folders
+ViewModelsViews - MainViewModel (one partial class per tab, e.g. MainViewModel.Azure.cs) and user controls (one per tab)
+
+Services - each service (used by MainViewModel) supports one aspect of the app
+
+AzureADClientSecret - Azure AD bear token authentication stuff
+
+Data / Migrations - Code First DbContext for MySQL + Entity Framework (would be similar if MS SQL Server were used)
+
+ClientServerShared - requests and responses for Web API, DTOs, constants, and so on, shared between client and server projects
+
+==Shazam tab
+Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed，plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API) or local MySQL DB.
+
+You can open currently selected YouTube video externally with default web browser.
+
+==Azure tab
+Saved song info list in Azure SQL DB (via Web API) will be displayed on the left-panel. When an item is selected in the list, the matching YouTube video will display on the right side.
+
+You can delete a selected item in the list via Web API.
+
+==MySQL tab
+Similar to Azure tab, but data store is local MySQL DB.  The choice of MySQL + Entity Framework is simply for research.  Note: MySQL needs to be installed and configured properly, and small changes in MySQLContext.cs will be required.
+
+Since MySQL is assumed not installed, default mode on this tab is Demo that shows a predefined read-only list.
+
+==About tab
+It is this tab with a RichTextBox containing a FlowDocument with Paragraphs built programmatically.

@@ -10,10 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\about.png" />
+    <None Remove="Assets\AboutTabContent.txt" />
     <None Remove="Assets\azure.png" />
     <None Remove="Assets\database.png" />
     <None Remove="Assets\shazam.png" />
     <None Remove="CSharpWpfShazam.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\AboutTabContent.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\about.png" />
     <Resource Include="Assets\azure.png" />
     <Resource Include="Assets\database.png" />
     <Resource Include="Assets\shazam.png" />

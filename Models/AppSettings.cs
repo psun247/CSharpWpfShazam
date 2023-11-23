@@ -5,7 +5,8 @@
         public const string ShazamTabName = "ShazamTab";
         public const string AzureTabName = "AzureTab";
         public const string MySQLTabName = "MySQLTab";
-        
+        public const string AboutTabName = "AboutTab";
+
         // Shown in device combo box
         public string SelectedDeviceName { get; set; } = string.Empty;
         // Used for Shazam API

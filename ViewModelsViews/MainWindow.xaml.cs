@@ -32,12 +32,14 @@ namespace CSharpWpfShazam.ViewModelsViews
                     // won't fire TabControlName_SelectionChanged, hence directly calling OnShazamTabActivated.         
                     _mainViewModel.OnShazamTabActivated(true);
                     break;
-                case AppSettings.MySQLTabName:
-                    // This will fire (we need) a MySQLTabItem selection event, so let TabControlName_SelectionChanged handle its logic.
-                    MySQLTabItem.IsSelected = true;
-                    break;
                 case AppSettings.AzureTabName:
                     AzureTabItem.IsSelected = true;
+                    break;
+                case AppSettings.MySQLTabName:
+                    MySQLTabItem.IsSelected = true;
+                    break;
+                case AppSettings.AboutTabName:
+                    AboutTabItem.IsSelected = true;
                     break;
             }
         }
@@ -57,15 +59,24 @@ namespace CSharpWpfShazam.ViewModelsViews
             {
                 _mainViewModel.OnShazamTabActivated(tabActivated.Value);
             }
+            tabActivated = IsTabActivated<AzureUserControl>(e);
+            if (tabActivated.HasValue)
+            {
+                _mainViewModel.OnAzureTabActivated(tabActivated.Value);
+            }
             tabActivated = IsTabActivated<MySQLUserControl>(e);
             if (tabActivated.HasValue)
             {
                 _mainViewModel.OnMySQLTabActivated(tabActivated.Value);
             }
-            tabActivated = IsTabActivated<AzureUserControl>(e);
-            if (tabActivated.HasValue)
+            tabActivated = IsTabActivated<AboutUserControl>(e);
+            if (tabActivated.HasValue && tabActivated.Value)
             {
-                _mainViewModel.OnAzureTabActivated(tabActivated.Value);
+                // Note: only thing to do is to set tab name, so don't implement OnAboutTabActivated()
+                if (tabActivated.Value)
+                {
+                    _mainViewModel.AppSettings.SelectedTabName = AppSettings.AboutTabName;
+                }
             }
         }
 

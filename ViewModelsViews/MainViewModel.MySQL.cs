@@ -20,11 +20,7 @@ namespace CSharpWpfShazam.ViewModelsViews
         public WebView2 MySQLWebView2Control { get; private set; } = new();
         [ObservableProperty]
         bool _isDeleteMySQLEnabled;
-        public string SwitchModeButtonText => _appService.AppSettings.IsMySQLEnabled ? "Switch to Demo Mode" : "Switch to MySQL Mode";
-        // Keep SwitchModeDescriptionText short for UI space
-        public string SwitchModeDescriptionText => _appService.AppSettings.IsMySQLEnabled ?
-                            "(Current mode is MySQL, displaying a dynamic list from local MySQL DB)" :
-                                "(Current mode is Demo, displaying a predefined read-only list)";
+        public string SwitchModeButtonText => _appService.AppSettings.IsMySQLEnabled ? "Switch to Demo Mode" : "Switch to MySQL Mode";        
 
         private void InitializeMySQLTab()
         {
@@ -51,8 +47,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                         // Ensure demo mode
                         DemoModeBindSongInfoListFromMySQL();
                         _appService.UpdateMySQLEnabled(false);
-                        OnPropertyChanged(nameof(SwitchModeButtonText));
-                        OnPropertyChanged(nameof(SwitchModeDescriptionText));
+                        OnPropertyChanged(nameof(SwitchModeButtonText));                        
                     }
 
                     // Auto-select SelectedSongInfoFromMySQL
@@ -187,8 +182,7 @@ namespace CSharpWpfShazam.ViewModelsViews
                 {
                     _appService.UpdateMySQLEnabled(!_appService.AppSettings.IsMySQLEnabled);                    
                     UpdateMySQLTabButtons();
-                    OnPropertyChanged(nameof(SwitchModeButtonText));
-                    OnPropertyChanged(nameof(SwitchModeDescriptionText));
+                    OnPropertyChanged(nameof(SwitchModeButtonText));                    
                 }
             }
             catch (Exception ex)

@@ -66,6 +66,15 @@
                         </ui:TabItemHelper.Icon>
                         <local:MySQLUserControl DataContext="{Binding .}" />
                     </TabItem>
+                    <TabItem x:Name="AboutTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                        <TabItem.Header>
+                            <TextBlock Text="About" Margin="6,2" />
+                        </TabItem.Header>
+                        <ui:TabItemHelper.Icon>
+                            <ui:BitmapIcon UriSource="/Assets/about.png" ShowAsMonochrome="False" />
+                        </ui:TabItemHelper.Icon>
+                        <local:AboutUserControl DataContext="{Binding .}" />
+                    </TabItem>
                 </TabControl.Items>
             </TabControl>
 

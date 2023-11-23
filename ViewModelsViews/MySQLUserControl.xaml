@@ -15,7 +15,6 @@
             <Button Content="Delete from MySQL" Command="{Binding DeleteMySQLCommand}" IsEnabled="{Binding IsDeleteMySQLEnabled}"
                     ToolTip="Delete selected song info from local MySQL DB" Margin="15,0,0,0" />
             <Button Content="{Binding SwitchModeButtonText}" Command="{Binding SwitchModeCommand}" Margin="20,0,0,0" />
-            <TextBlock Text="{Binding SwitchModeDescriptionText}" Margin="15,23,0,0" />
         </StackPanel>
         <Border Grid.Row="1" BorderThickness="0,3,0,0" BorderBrush="{StaticResource ShazamThemeBrush}">
             <Grid>

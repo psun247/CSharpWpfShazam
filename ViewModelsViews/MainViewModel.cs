@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
+using System.IO;
+using System.Reflection;
 using Microsoft.Web.WebView2.Wpf;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -56,6 +58,7 @@ namespace CSharpWpfShazam.ViewModelsViews
 #endif
             InitializeMySQLTab();
             InitializeAzureLTab();
+            LoadContentForAboutTab();
         }
 
         public string AppTitle { get; private set; }
@@ -67,6 +70,7 @@ namespace CSharpWpfShazam.ViewModelsViews
         string _statusMessage = string.Empty;
         [ObservableProperty]
         bool _isErrorStatusMessage;
+        public AboutContent AboutTabContent { get; private set; } = new AboutContent();
 
         public async Task InitializeAsync()
         {
@@ -278,6 +282,55 @@ namespace CSharpWpfShazam.ViewModelsViews
                     YouTubeWebView2Control.Source = uri;
                 }
             }
-        }        
+        }
+
+        // Since this is the only method for 'About' tab, don't create MainViewModel.About.cs
+        private void LoadContentForAboutTab()
+        {
+            try
+            {
+                var asm = Assembly.GetExecutingAssembly();
+                string[] names = asm.GetManifestResourceNames();
+                string? path = names.FirstOrDefault(x => x == "CSharpWpfShazam.Assets.AboutTabContent.txt");
+                if (path != null)
+                {
+                    using (Stream? stream = asm.GetManifestResourceStream(path))
+                    {
+                        if (stream != null)
+                        {
+                            using (StreamReader reader = new StreamReader(stream))
+                            {
+                                string[] lines = reader.ReadToEnd().Split("\r\n").Where(x => !x.StartsWith("--")).ToArray();
+                                Paragraph? paragraph = null;
+                                foreach (string line in lines)
+                                {
+                                    if (line.StartsWith("=="))
+                                    {
+                                        paragraph = new Paragraph
+                                        {
+                                            Header = line.Remove(0, 2)
+                                        };
+                                        AboutTabContent.ParagraphList.Add(paragraph);
+                                    }
+                                    else if (paragraph != null)
+                                    {
+                                        paragraph.Detail = $"{paragraph.Detail}\r\n{line}";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (AboutTabContent.ParagraphList.Count == 0)
+                {
+                    AboutTabContent.Error = "About content not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                AboutTabContent.Error = $"Error: {ex.Message}";
+            }
+        }
     }
 }
