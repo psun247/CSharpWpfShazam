@@ -47,6 +47,12 @@ namespace CSharpWpfShazam.Services
         public string? WebApiUrlNoAuth => _webApiClientNoAuth?.AzureServiceWebApiEndpoint;
         public string? WebApiUrlAuth => _webApiClientAuth?.AzureServiceWebApiEndpoint;
 
+        public async Task UseNewAccessTokenAsync()
+        {
+            AzureADInfo azureADInfo = await AuthConfig.GetAzureADInfoAsync();
+            _webApiClientAuth?.ReplaceAccessToken(azureADInfo.AccessToken);
+        }
+
         public async Task<List<SongInfo>> GetAllSongInfoListAsync(bool viaAuth)
         {
             WebApiClient webApiClient = GetWebApiClient(viaAuth)!;

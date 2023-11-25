@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Windows.Input;
 using Microsoft.Web.WebView2.Wpf;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -126,6 +129,54 @@ namespace CSharpWpfShazam.ViewModelsViews
             ReloadDeviceList(isAppStartup: false);
         }
 
+        // Note: using AddAzureAsync() won't bind (maybe a bug with 'Async')
+        [RelayCommand]
+        private async Task AddAzure()
+        {
+            if (_lastVideoInfo == null)
+            {
+                return;
+            }
+
+            try
+            {
+                Mouse.OverrideCursor = Cursors.Wait;
+
+                var songInfo = new SongInfo
+                {
+                    Artist = _lastVideoInfo.Artist,
+                    Description = _lastVideoInfo.Song,
+                    CoverUrl = _lastVideoInfo.CoverUrl,
+                    Lyrics = SongLyrics,
+                    SongUrl = CurrentVideoUri
+                };
+
+                string error = await _azureService!.AddSongInfoAsync(songInfo, IsWebApiViaAuth);
+                if (error.IsBlank())
+                {
+                    _isAzureTabInSync = false;
+                    StatusMessage = $"Song info added to Azure SQL DB ({WebApiAuthInfo})";
+                }
+                else
+                {
+                    ErrorStatusMessage = error;
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                SongInfoListFromAzure = new ObservableCollection<SongInfo>();
+                await HandleHttpRequestExceptionAsync(ex);
+            }
+            catch (Exception ex)
+            {
+                ErrorStatusMessage = ex.Message;
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
+        }
+
         [RelayCommand]
         private void AddMySQL()
         {
@@ -155,6 +206,40 @@ namespace CSharpWpfShazam.ViewModelsViews
                 {
                     ErrorStatusMessage = error;
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorStatusMessage = ex.Message;
+            }
+        }
+
+        [RelayCommand]
+        private async Task OpenInExternalBrowser()
+        {
+            try
+            {
+                if (CurrentVideoUri.IsNotBlank())
+                {
+                    await GeneralHelper.ExecuteOpenUrlCommandAsync(CurrentVideoUri);
+                }
+                else
+                {
+                    ErrorStatusMessage = "YouTube video or search query not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorStatusMessage = ex.Message;
+            }
+        }
+
+        // Key="Enter"
+        [RelayCommand]
+        private void GoVideoUrl()
+        {
+            try
+            {
+                BindWebView2Control(CurrentVideoUri);
             }
             catch (Exception ex)
             {

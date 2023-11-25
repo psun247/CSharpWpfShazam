@@ -34,6 +34,11 @@ namespace CSharpWpfShazam.Services
 
         public string AzureServiceWebApiEndpoint { get; private set; }
 
+        public void ReplaceAccessToken(string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+        }
+
         public async Task<GetAllSongInfoListResponse?> GetAllSongInfoListAsync(GetAllSongInfoListRequest request)
         {
             return await CallWebAPIAsync<GetAllSongInfoListRequest, GetAllSongInfoListResponse>(request, "GetAllSongInfoList");

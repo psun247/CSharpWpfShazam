@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Web.WebView2.Wpf;
@@ -77,6 +78,11 @@ namespace CSharpWpfShazam.ViewModelsViews
 
                 StatusMessage = list.Count == 0 ? $"No song info found at Azure SQL DB ({WebApiAuthInfo})" : $"Song info list loaded from Azure SQL DB ({WebApiAuthInfo})";                
             }
+            catch (HttpRequestException ex)
+            {
+                SongInfoListFromAzure = new ObservableCollection<SongInfo>();
+                await HandleHttpRequestExceptionAsync(ex);
+            }
             catch (Exception ex)
             {
                 // e.g. when ex isHttpRequestException, Response status code does not indicate success: 401 (Unauthorized).
@@ -122,6 +128,11 @@ namespace CSharpWpfShazam.ViewModelsViews
                 {
                     ErrorStatusMessage = error;
                 }
+            }
+            catch (HttpRequestException ex)
+            {
+                SongInfoListFromAzure = new ObservableCollection<SongInfo>();
+                await HandleHttpRequestExceptionAsync(ex);
             }
             catch (Exception ex)
             {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Input;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
@@ -13,7 +12,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CSharpWpfShazam.Models;
 using CSharpWpfShazam.Services;
-using CSharpWpfShazam.Helpers;
 
 namespace CSharpWpfShazam.ViewModelsViews
 {
@@ -124,84 +122,7 @@ namespace CSharpWpfShazam.ViewModelsViews
         {
             SongInfoSectionVisibility = (SongInfoSectionVisibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
             _appService.UpdateSongInfoSectionVisibility(SongInfoSectionVisibility == Visibility.Visible);
-        }
-      
-        // Note: using AddAzureAsync() won't bind (maybe a bug with 'Async')
-        [RelayCommand]
-        private async Task AddAzure()
-        {
-            if (_lastVideoInfo == null)
-            {
-                return;
-            }
-
-            try
-            {
-                Mouse.OverrideCursor = Cursors.Wait;
-
-                var songInfo = new SongInfo
-                {
-                    Artist = _lastVideoInfo.Artist,
-                    Description = _lastVideoInfo.Song,
-                    CoverUrl = _lastVideoInfo.CoverUrl,
-                    Lyrics = SongLyrics,
-                    SongUrl = CurrentVideoUri
-                };
-
-                string error = await _azureService!.AddSongInfoAsync(songInfo, IsWebApiViaAuth);
-                if (error.IsBlank())
-                {
-                    _isAzureTabInSync = false;                    
-                    StatusMessage = $"Song info added to Azure SQL DB ({WebApiAuthInfo})";
-                }
-                else
-                {
-                    ErrorStatusMessage = error;
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorStatusMessage = ex.Message;
-            }
-            finally
-            {
-                Mouse.OverrideCursor = null;
-            }
-        }        
-
-        [RelayCommand]
-        private async Task OpenInExternalBrowser()
-        {
-            try
-            {
-                if (CurrentVideoUri.IsNotBlank())
-                {
-                    await GeneralHelper.ExecuteOpenUrlCommandAsync(CurrentVideoUri);
-                }
-                else
-                {
-                    ErrorStatusMessage = "YouTube video or search query not found";
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorStatusMessage = ex.Message;
-            }
-        }
-
-        // Key="Enter"
-        [RelayCommand]
-        private void GoVideoUrl()
-        {
-            try
-            {
-                BindWebView2Control(CurrentVideoUri);
-            }
-            catch (Exception ex)
-            {
-                ErrorStatusMessage = ex.Message;
-            }
-        }
+        }             
 
         // partial method hook (after / device selected)
         partial void OnSelectedDeviceSettingChanged(DeviceSetting? value)
@@ -281,6 +202,20 @@ namespace CSharpWpfShazam.ViewModelsViews
                 {
                     YouTubeWebView2Control.Source = uri;
                 }
+            }
+        }
+
+        private async Task HandleHttpRequestExceptionAsync(HttpRequestException ex)
+        {
+            if (IsWebApiViaAuth && ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                // 401 (Unauthorized) via auth when toke expires (60 minutes), so generate a new token                
+                await _azureService!.UseNewAccessTokenAsync();
+                ErrorStatusMessage = $"{ex.Message} New access token has been created.  Please try again.";
+            }
+            else
+            {
+                ErrorStatusMessage = ex.Message;
             }
         }
 
