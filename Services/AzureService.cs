@@ -37,6 +37,14 @@ namespace CSharpWpfShazam.Services
 #endif
                 return new AzureService(azureADInfo);
             }
+            catch (Microsoft.Identity.Client.MsalClientException)
+            {
+                // AuthConfig.GetAzureADInfoUserNamePasswordAsync() call would cause this error:
+                // { "Unsupported User Type 'Unknown'. Please see https://aka.ms/msal-net-up. "}                
+                // https://learn.microsoft.com/en-us/entra/msal/dotnet/acquiring-tokens/desktop-mobile/username-password-authentication
+                // Guess: Only available for work and school accounts and not personal Microsoft accounts.
+                // So GetAzureADInfoUserNamePasswordAsync() should work in theory, but not in this app
+            }
             catch (Exception ex)
             {
                 string todoLogThisMessage = ex.Message;

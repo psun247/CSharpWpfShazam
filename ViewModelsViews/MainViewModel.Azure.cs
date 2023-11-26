@@ -176,7 +176,7 @@ namespace CSharpWpfShazam.ViewModelsViews
             _appService.AppSettings.IsWebApiViaAuth = value;
             if (value)
             {
-                WebApiAuthOptionDescription = $"Use Web API with auth ({_azureService?.WebApiUrlAuth})";
+                WebApiAuthOptionDescription = $"Use Web API with JWT token ({_azureService?.WebApiUrlAuth})";
             }
             else
             {
