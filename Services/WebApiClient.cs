@@ -54,7 +54,9 @@ namespace CSharpWpfShazam.Services
             // 2023-11-22: complete path doesn't work with DeleteAsync() in Azure,
             //              so just pass Qy7z_oiN6nQ (video ID) by removing YouTubeWatchPrefix.
             //              But PostAsJsonAsync() version below still works with the server, though.
-            string url = $"{AzureServiceWebApiEndpoint}/{request.SongUrl.Replace(Constants.YouTubeWatchPrefix, string.Empty)}";
+            //string url = $"{AzureServiceWebApiEndpoint}/{request.SongUrl.Replace(Constants.YouTubeWatchPrefix, string.Empty)}";
+            // Note: 2023-12-06: used 'int SongInfoId' for Delete
+            string url = $"{AzureServiceWebApiEndpoint}/{request.SongInfoId}";
             HttpResponseMessage responseMessage = await _httpClient.DeleteAsync(url);
             responseMessage.EnsureSuccessStatusCode();
             return await responseMessage.Content.ReadFromJsonAsync<DeleteSongInfoResponse>();

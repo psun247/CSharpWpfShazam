@@ -33,7 +33,7 @@ namespace CSharpWpfShazam.Services
 #if DEBUG               
                 // Overwrite WebApiEndpoint in appsettings.json in Debug build
                 //azureADInfo.WebApiEndpoint = "https://localhost:7025/songrepo";
-                //Debug.WriteLine($"****Overwrite WebApiEndpoint in Debug build: {azureADInfo.WebApiEndpoint}");
+                //System.Diagnostics.Debug.WriteLine($"****Overwrite WebApiEndpoint in Debug build: {azureADInfo.WebApiEndpoint}");
 #endif
                 return new AzureService(azureADInfo);
             }
@@ -68,6 +68,7 @@ namespace CSharpWpfShazam.Services
 
             return response?.SongInfoDtoList.Select(x => new SongInfo
             {
+                Id = x.SongInfoId,
                 Artist = x.Artist,
                 Description = x.Description,
                 CoverUrl = x.CoverUrl,
@@ -95,11 +96,11 @@ namespace CSharpWpfShazam.Services
             return response?.Error ?? "Error: didn't get a response from Web API";
         }
 
-        public async Task<string> DeleteSongInfoAsync(string songUrl, bool viaAuth)
+        public async Task<string> DeleteSongInfoAsync(int songInfoId, bool viaAuth)
         {
             WebApiClient webApiClient = GetWebApiClient(viaAuth)!;
             DeleteSongInfoResponse? response =
-                await webApiClient.DeleteSongInfoAsync(new DeleteSongInfoRequest { SongUrl = songUrl });
+                await webApiClient.DeleteSongInfoAsync(new DeleteSongInfoRequest { SongInfoId = songInfoId });
 
             return response?.Error ?? "Error: didn't get a response from Web API";
         }
