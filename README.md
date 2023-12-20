@@ -1,3 +1,6 @@
+# Note: Please see the latest with both WPF and WinUI 3 versions at: https://github.com/psun247/ShazamDesk
+
+
 # CSharpWpfShazam
 This is a C# WPF app that identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API or in local MySQL DB.
 
